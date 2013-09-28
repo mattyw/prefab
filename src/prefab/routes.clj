@@ -4,6 +4,7 @@
             [compojure.route :as route]
             [ring.util.response :as resp :refer (response)]
             [prefab.views :as views]
+            [prefab.feed :as feed]
             ))
 
 (def feeds [{:feedUrl "http://prefab.com/feed/feed-1.rss"
