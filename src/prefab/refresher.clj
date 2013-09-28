@@ -1,13 +1,12 @@
 (ns prefab.refresher
   (:require [taoensso.carmine :as car :refer (wcar)]
-            [taoensso.carmine.message-queue :as mq]
             [taoensso.timbre :refer (error warn info infof debugf)])
   (:import [java.util.concurrent Executors TimeUnit]))
 
 (def qname "prefab:refresher")
 (def zkey "prefab:refresher-urls") ;; redis sorted set
 
-(defrecord Refresher [redis pool fetcher-qname fetch-limit interval])
+(defrecord Refresher [redis pool refresh-fn fetch-limit interval])
 
 (defn- now [] (System/currentTimeMillis))
 
@@ -28,13 +27,14 @@
 
 (defn refresh-expired
   "Finds items that need to be refreshed and enqueues them to fetcher"
-  [redis fetch-limit fetcher-qname]
+  [redis fetch-limit refresh-fn]
   (let [urls (get-expired redis fetch-limit)
         t (now)]
-    (infof "Refreshing feeds (%d): %s" t urls)
+    (when (seq urls)
+      (infof "Refreshing feeds: %s" urls))
     (wcar redis
           (doseq [url urls]
-            (mq/enqueue fetcher-qname url)
+            (refresh-fn url)
             (car/zrem zkey url)))))
 
 (defn clear-refresher
@@ -44,18 +44,18 @@
 
 (defn refresher
   "Creates new refresher"
-  [{:keys [redis pool fetcher-qname fetch-limit interval num-threads]
+  [{:keys [redis pool refresh-fn fetch-limit interval num-threads]
     :or {num-threads 1 fetch-limit 30 interval 2000}}]
   (map->Refresher {:redis redis
                    :pool pool
-                   :fetcher-qname fetcher-qname
+                   :refresh-fn refresh-fn
                    :fetch-limit fetch-limit
                    :interval interval
                    :num-threads num-threads}))
 
-(defn- start-pool [{:keys [redis pool fetcher-qname fetch-limit interval] :as refresher}]
+(defn- start-pool [{:keys [redis pool refresh-fn fetch-limit interval] :as refresher}]
   (infof "Starting refresher with threads=%d, interval=%dms" (.getCorePoolSize pool) interval)
-  (.scheduleWithFixedDelay pool #(refresh-expired redis fetch-limit fetcher-qname)
+  (.scheduleWithFixedDelay pool #(refresh-expired redis fetch-limit refresh-fn)
                            interval interval TimeUnit/MILLISECONDS)
   refresher)
 

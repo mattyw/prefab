@@ -38,7 +38,7 @@
 
 (defn- start-refresher [{:keys [redis] :as system}]
   (->> (refresher/refresher {:redis redis
-                             :fetcher-qname fetcher/qname})
+                             :refresh-fn fetcher/enqueue})
        (refresher/start-refresher)
        (assoc system :refresher)))
 
