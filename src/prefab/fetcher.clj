@@ -21,7 +21,7 @@
   (-> entry
       (select-keys [:link :contributors :author :authors
                     :title :uri :update-date :categories :links])
-      (assoc :description (get-in entry [:description :value]))
+      (assoc :content (get-in entry [:description :value]))
       (assoc :title-ex (get-in entry [:title-ex :value]))))
 
 (defn fetch [url]

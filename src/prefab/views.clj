@@ -40,10 +40,9 @@
    [:div (:content entry)]])
 
 (defpage feed-view
-  [id feed]
-  [:h1 (:title feed)]
+  [id feeds]
   [:a {:href (str "/feed/edit/" id)} "(edit)"]
-  (ordered-list {:class "list-unstyled"} (map entry (:entries feed))))
+  (ordered-list {:class "list-unstyled"} (map entry (mapcat :entries feeds))))
 
 (defpage feed-edit
   [parent-feed-urls]
