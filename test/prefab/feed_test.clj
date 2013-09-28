@@ -4,8 +4,8 @@
 
 (deftest test-url-validation
   (testing "That urls are validated"
-    (is (= "<entry>" (validate-feed "http://blog.mattyw.net/atom.xml")))
-    (is (= nil (validate-feed "foobar")))))
+    (is (= true (validate-feed "http://blog.mattyw.net/atom.xml")))
+    (is (= false (validate-feed "foobar")))))
 
 (deftest test-feeds-validation
   (testing "That feeds are validated"

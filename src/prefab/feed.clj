@@ -25,14 +25,14 @@
   (let [data (http/get url)]
   (cond
     (= (:status @data) 200)
-      (re-find #"<entry>" (:body @data))
+      (not (nil? (re-find #"<.* xmlns.*>" (:body @data))))
     :else
-      nil)))
+      false)))
 
 (defn validate-feeds
   [urls]
   (let [validated (map validate-feed urls)]
-      (every? (fn [url] (= "<entry>" url)) validated)))
+      (every? (fn [url] (= true url)) validated)))
 
 (defn add-feed
   [key urls]
