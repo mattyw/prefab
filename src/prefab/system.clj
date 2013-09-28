@@ -1,15 +1,15 @@
 (ns prefab.system
   (:require [prefab.routes :as routes]
             [prefab.fetcher :as fetcher]
+            [prefab.refresher :as refresher]
             [prefab.util :as util :refer (int*)]
             [taoensso.timbre :refer (error warn info infof)]
             [environ.core :refer (env)]
             [org.httpkit.server :refer (run-server)]))
 
-(defrecord Prefab [server handler port redis fetchers])
+(defrecord Prefab [server handler port redis fetchers refresher])
 
-(defn- start-handler [system]
-  (assoc system :handler (routes/app system)))
+;; server
 
 (defn- start-server [{:keys [handler port] :as system}]
   (infof "Starting HTTP server on port %d" port)
@@ -20,6 +20,8 @@
   (when server
     (server))
   (assoc system :server nil))
+
+;; fetchers
 
 (defn- start-fetchers [{:keys [redis] :as system}]
   (assoc system :fetchers
@@ -32,17 +34,34 @@
     (fetcher/stop-fetcher fetcher))
   (assoc system :fetchers nil))
 
+;; refresher
+
+(defn- start-refresher [{:keys [redis] :as system}]
+  (->> (refresher/refresher {:redis redis
+                             :refresh-fn fetcher/enqueue})
+       (refresher/start-refresher)
+       (assoc system :refresher)))
+
+(defn- stop-refresher [{:keys [refresher] :as system}]
+  (when refresher
+    (refresher/stop-refresher refresher))
+  (assoc system :refresher nil))
+
+;; all together now
+
 (defn start [system]
   (-> system
-      start-handler
+      (assoc :handler (routes/app system))
       start-server
-      start-fetchers))
+      start-fetchers
+      start-refresher))
 
 (defn stop [system]
   (-> system
-      (assoc :handler nil)
+      stop-refresher
+      stop-fetchers
       stop-server
-      stop-fetchers))
+      (assoc :handler nil)))
 
 (defn system [port]
   (map->Prefab {:port (int* (env :port port))

@@ -10,3 +10,5 @@
   (int* [x] x)
   Object
   (int* [x] (int x)))
+
+(defn min->ms [t] (* t 60 1000))
