@@ -26,10 +26,9 @@
 (defpage index-page
   [feed-count random-feeds]
   [:h1 "Welcome to Prefab"]
-  [:p {:class "lead"} "Prefab is an RSS-feed aggregator. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
-  [:p "Prefab is a new way of doing rss feed aggregation."]
+  [:p {:class "lead"} "Prefab is a new way of doing RSS feed aggregation. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
+  [:p "It's new because:"]
   [:ul
-    [:li "You create a prefab feed with a list of existing rss feeds."]
     [:li "All prefab feeds are public"]
     [:li "All feeds are immutable, so editing existing feeds simply creates a new feed."]
     [:li "New feeds can be created by combining 2 or more existing feeds."]
