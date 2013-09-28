@@ -18,6 +18,8 @@
     (routes
       (GET "/feed" []
            (views/feed-edit nil))
+      (GET "/list" []
+           (views/list-feeds (feed/all-feed-ids redis)))
       (GET "/feed/edit/:id" [id]
            (views/feed-edit (some-> (wcar redis (feed/get-feed id)) :urls)))
       (GET "/feed/:id" [id]

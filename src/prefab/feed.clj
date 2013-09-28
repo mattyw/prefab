@@ -1,7 +1,7 @@
 (ns prefab.feed
-  (:require [prefab.fetcher :as fetcher]
+  (:require [taoensso.carmine :as car :refer (wcar)]
             [clojure.string :as str]
-            [taoensso.carmine :as car :refer (wcar)]
+            [prefab.fetcher :as fetcher]
             [taoensso.timbre :refer (error)]
             [org.httpkit.client :as http]))
 
@@ -21,6 +21,11 @@
       (str/replace #"\s+" "-")
       (str/lower-case)
       (car/key)))
+
+(defn all-feed-ids
+  [redis]
+  (wcar redis
+        (car/hkeys hkey-feeds)))
 
 (defn number-of-feeds ;; TODO rename to num-feeds
   [redis]
@@ -85,4 +90,3 @@
       (wcar redis (doseq [url urls]
                     (fetcher/enqueue url)))
       [id result])))
-
