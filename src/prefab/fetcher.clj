@@ -15,9 +15,7 @@
   (wcar redis
         (car/get (url-key url))))
 
-(defn enqueue [redis url]
-  (wcar redis
-        (mq/enqueue qname url)))
+(defn enqueue [url] (mq/enqueue qname url))
 
 (defn extract-entry [entry]
   (-> entry

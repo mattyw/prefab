@@ -6,6 +6,7 @@
             [taoensso.carmine :as car :refer (wcar)]
             [prefab.views :as views]
             [prefab.feed :as feed]
+            [prefab.fetcher :as fetcher]
             ))
 
 (def feeds [{:feedUrl "http://prefab.com/feed/feed-1.rss"
@@ -70,7 +71,9 @@
            (views/feed-view id (rand-nth feeds)))
       (POST "/feed" {{:keys [urls]} :params}
             (when-let [urls (if (coll? urls) (set urls))]
-              (wcar redis (feed/create-feed urls))
+              (wcar redis (feed/create-feed urls)
+                    (doseq [url urls]
+                      (fetcher/enqueue url)))
               (redirect-after-post (feed-url (feed/feed-id urls)))))
 
       (GET "/random" []
