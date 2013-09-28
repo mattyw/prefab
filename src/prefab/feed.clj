@@ -1,5 +1,6 @@
 (ns prefab.feed
   (:require [taoensso.carmine :as car]
+            [prefab.fetcher :as fetcher]
             [org.httpkit.client :as http]))
 
 (defn feed-id [urls]
@@ -26,6 +27,12 @@
   (let [validated (map validate-feed urls)]
       (every? (fn [url] (= "<entry>" url)) validated)))
 
+(defn add-feed
+  [key urls]
+  (apply car/sadd key urls)
+  (doseq [url urls]
+    (fetcher/enqueue url)))
+
 (defn create-feed
   ""
   [urls]
@@ -34,7 +41,7 @@
     (car/del k)
     (cond
       (validate-feeds urls)
-        (apply car/sadd k urls)
+        (add-feed k urls)
       :else
         (println "feed not valid"))
     id))
