@@ -16,7 +16,8 @@
                  [clj-rome "0.4.0"]
                  [clj-rome-fetcher "0.1.0"]
                  ]
-  :main prefab.system
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["dev"]
-                   :plugins [[lein-midje "3.1.2"]]}})
+                   :plugins [[lein-midje "3.1.2"]]}
+            :production
+                  {:main prefab.system}})
