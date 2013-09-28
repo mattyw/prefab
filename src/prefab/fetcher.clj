@@ -2,23 +2,42 @@
   (:require [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as mq]
             [taoensso.timbre :refer (error warn info)]
-            [clj-rome.reader]
+            [clj-rome.reader :refer (build-feed)]
             [clj-rome.fetcher :refer (build-url-fetcher with-fetcher retrieve-feed)])
   (:import [java.io IOException]))
 
-(def qname "fetcher")
+(def qname "prefab:fetcher")
 (def max-attempts 3)
+
+(defn url-key [url] (str "prefab:url:" url))
+
+(defn get-feed [redis url]
+  (wcar redis
+        (car/get (url-key url))))
 
 (defn enqueue [redis url]
   (wcar redis
         (mq/enqueue qname url)))
 
+(defn extract-entry [entry]
+  (-> entry
+      (select-keys [:link :contributors :author :authors
+                    :title :uri :update-date :categories :links])
+      (assoc :description (get-in entry [:description :value]))
+      (assoc :title-ex (get-in entry [:title-ex :value]))))
+
+(defn fetch [url]
+  (let [feed (build-feed url)]
+    (->
+      (select-keys feed [:uri :title :author :authors :description :encoding])
+      (assoc :entries (map extract-entry (:entries feed))))))
+
 (defn fetcher-handler
-  [redis url-fetcher {:keys [message attempts]}]
+  [redis {url :message attempts :attempts}]
   (try
-    (info "Fetching feed: %s" message)
-    ;(with-fetcher url-fetcher
-      ;(retrieve-feed message))
+    (info "Fetching feed: %s" url)
+    (wcar redis
+          (car/set (url-key url) (fetch url)))
     {:status :success}
     (catch IOException e
       (if (< attempts max-attempts)
@@ -35,11 +54,7 @@
 (defn fetcher [redis]
   (info "Starting fetcher worker")
   (mq/worker redis qname
-             {:handler (partial fetcher-handler
-                                redis
-                                nil
-                                ;(build-url-fetcher :disk "/tmp/prefab-cache")
-                                )})) ;; TODO add cache
+             {:handler (partial fetcher-handler redis)}))
 
 (defn stop-fetcher [fetcher]
   (when fetcher (mq/stop fetcher)))
