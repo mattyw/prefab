@@ -1,5 +1,6 @@
 (ns prefab.feed
   (:require [taoensso.carmine :as car :refer (wcar)]
+            [clojure.string :as string]
             [prefab.fetcher :as fetcher]
             [taoensso.timbre :refer (error)]
             [org.httpkit.client :as http]))
@@ -12,6 +13,12 @@
   (count
     (wcar redis
       (car/keys "prefab:feed*"))))
+
+(defn all-feed-ids
+  [redis]
+  (let [ids (wcar redis
+        (car/keys "prefab:feed*"))]
+    (map #(string/replace %1 "prefab:feed:" "") ids)))
 
 (defn feed-key [id]
   (str "prefab:feed:" id))

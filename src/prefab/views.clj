@@ -1,6 +1,6 @@
 (ns prefab.views
   (:require [hiccup.core :refer :all]
-            [hiccup.element :refer [unordered-list ordered-list]]
+            [hiccup.element :refer [unordered-list ordered-list link-to]]
             [hiccup.page :as page :refer [include-css include-js]]
             [hiccup.form :as form]
             ))
@@ -58,6 +58,11 @@
       (ordered-list {:class "list-unstyled"} (map entry (->> entries
                                                              (sort-by #(:published-date (first %)))
                                                              reverse))))))
+
+(defpage list-feeds
+  [ids]
+  [:h1 "All feeds"]
+  (ordered-list {} (map #(link-to {} (str "/feed/" %1) %1) ids)))
 
 (defpage feed-edit
   [parent-feed-urls]
