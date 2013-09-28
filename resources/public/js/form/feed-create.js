@@ -16,7 +16,9 @@ define(function(require) {
 				urls: $this.find('[name="Feed[urls]"]').val().split("\n")
 			}
 		}).then(function(response) {
-			// TODO
+			if (response.location) {
+				window.location.replace(response.location);
+			}
 		});
 	});
 });

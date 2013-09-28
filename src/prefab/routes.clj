@@ -6,7 +6,9 @@
             [taoensso.carmine :as car :refer (wcar)]
             [prefab.views :as views]
             [prefab.feed :as feed]
+            [prefab.ajax]
             [prefab.fetcher :as fetcher]
+            [clojure.data.json :as json]
             ))
 
 (defn feed-url [id] (str "/feed/" id))
@@ -25,7 +27,7 @@
               (wcar redis (feed/create-feed urls)
                     (doseq [url urls]
                       (fetcher/enqueue url)))
-              (redirect-after-post (feed-url (feed/feed-id urls)))))
+              (prefab.ajax/redirect (feed-url (feed/feed-id urls)))))
 
       (GET "/random" []
            (resp/redirect "/")) ; TODO grab a random Fab url
