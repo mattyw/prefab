@@ -1,7 +1,7 @@
 (ns prefab.fetcher
   (:require [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as mq]
-            [taoensso.timbre :refer (error warn info)]
+            [taoensso.timbre :refer (error warn info infof)]
             [clj-rome.reader :refer (build-feed)]
             [clj-rome.fetcher :refer (build-url-fetcher with-fetcher retrieve-feed)])
   (:import [java.io IOException]))
@@ -33,7 +33,7 @@
 (defn fetcher-handler
   [redis {url :message attempts :attempts}]
   (try
-    (info "Fetching feed: %s" url)
+    (infof "Fetching feed: %s" url)
     (wcar redis
           (car/set (url-key url) (fetch url)))
     {:status :success}
