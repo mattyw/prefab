@@ -38,6 +38,8 @@
   (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (:link %)} (:title %)) random-feeds))
   [:a {:class "btn btn-primary" :href "/feed"} "Create New Feed"]
   "&nbsp;"
+  [:a {:class "btn btn-primary" :href "/list"} "List all feeds"]
+  "&nbsp;"
   [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"])
 
 (defn entry
