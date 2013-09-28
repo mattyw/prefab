@@ -11,6 +11,7 @@
                  [http-kit "2.1.10"]
                  [environ "0.4.0"]
                  [midje "1.5.1"]
+                 [hiccup "1.0.4"]
                  ]
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["dev"]

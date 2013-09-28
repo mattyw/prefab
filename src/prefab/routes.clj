@@ -3,6 +3,7 @@
             [compojure.handler]
             [compojure.route :as route]
             [ring.util.response :as resp :refer (response)]
+            [prefab.views :as views]
             ))
 
 
@@ -14,7 +15,7 @@
       (POST "/feed" {params :params}
             (response "TODO create feed"))
 
-      (GET "/" [] "Hello, prefab-world!")
+      (GET "/" [] (views/index-page))
       (route/resources "/")
       (route/not-found "Not found."))
     compojure.handler/site))
