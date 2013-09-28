@@ -5,7 +5,7 @@
   (-> urls set hash))
 
 (defn feed-key [id]
-  (str "feed/" id))
+  (str "prefab:feed:" id))
 
 (defn feed-urls [id]
   (car/smembers (feed-key id)))
