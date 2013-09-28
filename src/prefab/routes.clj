@@ -15,7 +15,9 @@
       (POST "/feed" {params :params}
             (response "TODO create feed"))
 
-      (GET "/" [] (views/index-page))
+      (GET "/" [] (views/index-page 10 [{:title "Feed 1" :link "/feed/feed-1"}
+                                        {:title "Feed 2" :link "/feed/feed-2"}
+                                        {:title "Feed 3" :link "/feed/feed-3"}]))
       (route/resources "/")
       (route/not-found "Not found."))
     compojure.handler/site))
