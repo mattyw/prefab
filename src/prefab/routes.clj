@@ -2,7 +2,8 @@
   (:require [compojure.core :refer :all]
             [compojure.handler]
             [compojure.route :as route]
-            [ring.util.response :as resp :refer (response)]
+            [ring.util.response :as resp :refer (response redirect-after-post)]
+            [taoensso.carmine :as car :refer (wcar)]
             [prefab.views :as views]
             [prefab.feed :as feed]
             ))
@@ -56,7 +57,9 @@
                         :publishedDate "13 Apr 2010 12:40:07 -0700"
                         :categories []}]}])
 
-(defn app [system]
+(defn feed-url [id] (str "/feed/" id))
+
+(defn app [{:keys [redis] :as system}]
   (->
     (routes
       (GET "/feed" []
