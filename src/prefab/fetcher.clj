@@ -17,18 +17,20 @@
 
 (defn enqueue [url] (mq/enqueue qname url))
 
-(defn extract-entry [entry]
+(defn- extract-entry [entry]
   (-> entry
-      (select-keys [:link :contributors :author :authors
-                    :title :uri :update-date :categories :links])
+      (select-keys [:link :contributors :author :authors :title :uri
+                    :update-date :categories :links])
       (assoc :content (get-in entry [:description :value]))
       (assoc :title-ex (get-in entry [:title-ex :value]))))
 
+(defn- extract-feed [feed]
+  (-> feed
+      (select-keys [:uri :title :author :authors :description :encoding])
+      (assoc :entries (map extract-entry (:entries feed)))))
+
 (defn fetch [url]
-  (let [feed (build-feed url)]
-    (->
-      (select-keys feed [:uri :title :author :authors :description :encoding])
-      (assoc :entries (map extract-entry (:entries feed))))))
+  (-> url build-feed extract-feed))
 
 (defn fetcher-handler
   [redis {url :message attempts :attempts}]
