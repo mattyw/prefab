@@ -59,6 +59,10 @@
 (defn app [system]
   (->
     (routes
+      (GET "/feed" []
+           (views/feed-edit nil))
+      (GET "/feed/edit/:id" [id]
+           (views/feed-edit nil)) ;; TODO - this should pass off a Prefab feed
       (GET "/feed/:id" [id]
            (views/feed-view (rand-nth feeds)))
       (POST "/feed" {{:keys [urls]} :params}

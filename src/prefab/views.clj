@@ -1,7 +1,8 @@
 (ns prefab.views
   (:require [hiccup.core :refer :all]
             [hiccup.element :refer [unordered-list ordered-list]]
-            [hiccup.page :as page :refer [include-css]]
+            [hiccup.page :as page :refer [include-css include-js]]
+            [hiccup.form :as form]
             ))
 
 (defmacro defpage
@@ -14,7 +15,9 @@
         [:title "Prefab"]
         [:meta {:name "description" :content "RSS Feed aggregation service"}]
         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-        (include-css "/lib/bootstrap.min.css")]
+        (include-css "/lib/bootstrap.min.css")
+        (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
+        [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
        [:body
         [:header {:class "navbar navbar-default" :role "banner"}
          [:a {:href "/" :class "navbar-brand"} "Prefab"]]
@@ -40,3 +43,14 @@
   [feed]
   [:h1 (:title feed)]
   (ordered-list {:class "list-unstyled"} (map entry (:entries feed))))
+
+(defpage feed-edit
+  [parent-feed]
+  (form/form-to {:id "feed-create"} [:post "/feed"]
+                [:div {:class "form-group"}
+                 [:label {:for "feed-name"} "Feed Name"]
+                 (form/text-field {:class "form-control" :id "feed-name"} "Feed[name]")]
+                [:div {:class "form-group"}
+                 [:label {:for "feed-urls"} "RSS Feeds"]
+                 (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]")]
+                [:button {:type "submit" :class "btn btn-success pull-right"} "Create"]))
