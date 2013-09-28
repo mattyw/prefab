@@ -43,12 +43,12 @@
   []
   (init)
   (start)
+  (when-let [redis (:redis system)]
+    (wcar redis (car/flushall)))
   :ready)
 
 (defn reset
   "Stops the system, reloads modified source files, and restarts it."
   []
-  (when system
-    (fetcher/clear-queue (:redis system)))
   (stop)
   (refresh :after 'user/go))

@@ -19,15 +19,21 @@
       (GET "/feed" []
            (views/feed-edit nil))
       (GET "/feed/edit/:id" [id]
-           (views/feed-edit (wcar redis (feed/feed-urls id))))
+           (views/feed-edit (some-> (wcar redis (feed/get-feed id)) :urls)))
       (GET "/feed/:id" [id]
-           (views/feed-view id (map fetcher/get-feed (repeat redis) (wcar redis (feed/feed-urls id)))))
-      (POST "/feed" {{:keys [urls]} :params}
-            (when-let [urls (if (coll? urls) (set urls))]
-              (wcar redis (feed/create-feed urls)
-                    (doseq [url urls]
-                      (fetcher/enqueue url)))
-              (prefab.ajax/redirect (feed-url (feed/feed-id urls)))))
+           (if-let [feed (feed/get-feed redis id)]
+             (views/feed-view id feed (map fetcher/get-feed (repeat redis) (:urls feed)))))
+      (HEAD "/feed/:id" [id]
+            (if (feed/feed-exists? redis id)
+              (response "")
+              (resp/not-found "")))
+      (POST "/feed" {{:keys [urls name]} :params}
+            (when-let [urls (if (feed/valid-urls? (seq urls)) (set urls))]
+              (when-let [[feed-id created?] (feed/create-feed redis name urls)]
+                (-> (prefab.ajax/redirect (feed-url feed-id))
+                    (assoc :flash (if created?
+                                    "Feed created!"
+                                    "A feed with those URLs already exists!"))))))
 
       (GET "/random" []
            (resp/redirect "/")) ; TODO grab a random Fab url

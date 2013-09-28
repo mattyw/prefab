@@ -1,51 +1,88 @@
 (ns prefab.feed
-  (:require [taoensso.carmine :as car :refer (wcar)]
-            [prefab.fetcher :as fetcher]
+  (:require [prefab.fetcher :as fetcher]
+            [clojure.string :as str]
+            [taoensso.carmine :as car :refer (wcar)]
             [taoensso.timbre :refer (error)]
             [org.httpkit.client :as http]))
+
+(def hkey-feeds (car/key "prefab" "feeds"))
+(def hkey-names (car/key "prefab" "feed-names"))
 
 (defn feed-id [urls]
   (-> urls set hash))
 
-(defn number-of-feeds
+(defn- normalize-name [name]
+  (if-let [name (if (string? name) (str/trim name))]
+    (if-not (str/blank? name)
+      name)))
+
+(defn name-key [name]
+  (-> name
+      (str/replace #"\s+" "-")
+      (str/lower-case)
+      (car/key)))
+
+(defn number-of-feeds ;; TODO rename to num-feeds
   [redis]
-  (count
-    (wcar redis
-      (car/keys "prefab:feed*"))))
+  (wcar redis (car/hlen hkey-feeds)))
 
-(defn feed-key [id]
-  (str "prefab:feed:" id))
-
-(defn feed-urls [id]
-  (car/smembers (feed-key id)))
-
-(defn validate-feed
+(defn valid-url?
   "A quick - hacky way of validating if the feed is valid or not"
   [url]
-  (let [data (http/get url)]
+  (let [data (http/get url)] ;; TODO use HEAD request
     (boolean (and
                (= (:status @data) 200)
                (some #(re-find % (:body @data)) [#"<item>" #"<entry>"])))))
 
-(defn validate-feeds
-  [urls]
-  (every? validate-feed urls))
+(defn valid-urls? [urls] (every? valid-url? urls)) ;; TODO parallelize
 
-(defn add-feed
-  [key urls]
-  (apply car/sadd key urls)
-  (doseq [url urls]
-    (fetcher/enqueue url)))
+(defn valid-name?
+  ([redis name] (wcar redis (valid-name? name)))
+  ([name] (car/hexists hkey-names (name-key name))))
+
+(defn feed-exists?
+  ([redis id] (wcar redis (feed-exists? id)))
+  ([id] (car/hexists hkey-feeds id)))
+
+(defn get-feed
+  ([redis id] (wcar redis (get-feed id)))
+  ([id] (when id (car/hget hkey-feeds id))))
+
+(defn get-feed-by-name
+  ([redis name] (wcar redis (get-feed-by-name name)))
+  ([name]
+   (car/lua
+     "local id = redis.call('hget', _:hkey-names, _:name)
+     if id then
+       return redis.call('hget', _:hkey-feeds, id)
+     end"
+     {:hkey-names hkey-names
+      :hkey-feeds hkey-feeds}
+     {:name (name-key name)})))
 
 (defn create-feed
-  ""
-  [urls]
+  [redis name urls]
   (let [id (feed-id urls)
-        k (feed-key id)]
-    (car/del k)
-    (cond
-      (validate-feeds urls)
-        (add-feed k urls)
-      :else
-        (error "feed not valid"))
-    id))
+        feed {:name (normalize-name name) :urls urls}
+        result (wcar redis
+                     (car/lua
+                       "local current_id = redis.call('hget', _:hkey-names, _:name)
+                       if current_id then
+                         if current_id == _:id then return 0
+                         else return 'invalid-name' end
+                       end
+                       if redis.call('hsetnx', _:hkey-feeds, _:id, _:feed) == 0 then
+                         return 0
+                       end
+                       redis.call('hset', _:hkey-names, _:name, _:id)
+                       return 1"
+                       {:hkey-names hkey-names
+                        :hkey-feeds hkey-feeds}
+                       {:id id
+                        :feed (car/freeze feed)
+                        :name (name-key name)}))]
+    (when (not= result "invalid-name")
+      (wcar redis (doseq [url urls]
+                    (fetcher/enqueue url)))
+      [id result])))
+

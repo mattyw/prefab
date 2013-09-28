@@ -3,6 +3,7 @@
             [hiccup.element :refer [unordered-list ordered-list]]
             [hiccup.page :as page :refer [include-css include-js]]
             [hiccup.form :as form]
+            [clojure.string :as str]
             ))
 
 (defmacro defpage
@@ -51,22 +52,23 @@
    [:div.panel-body (:content entry)]])
 
 (defpage feed-view
-  [id feeds]
+  [id {:keys [urls name] :as feed} feeds]
   (let [entries (mapcat #(map vector (:entries %) (repeat %)) feeds)]
     (list
+      (when name [:h1 name])
       [:a {:href (str "/feed/edit/" id)} "(edit)"]
       (ordered-list {:class "list-unstyled"} (map entry (->> entries
                                                              (sort-by #(:published-date (first %)))
                                                              reverse))))))
 
 (defpage feed-edit
-  [parent-feed-urls]
+  [feed-urls]
   (form/form-to {:id "feed-create"} [:post "/feed"]
-                ;[:div {:class "form-group"}
-                ; [:label {:for "feed-name"} "Feed Name"]
-                ; (form/text-field {:class "form-control" :id "feed-name"} "Feed[name]")]
+                [:div {:class "form-group"}
+                 [:label {:for "feed-name"} "Feed Name"]
+                 (form/text-field {:class "form-control" :id "feed-name" :placeholder "(optional)"} "Feed[name]")]
                 [:div.form-group
                  [:label {:for "feed-urls"} "RSS Feeds"]
                  (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]"
-                                 (when-not (nil? parent-feed-urls) (clojure.string/join "\n" parent-feed-urls)))]
+                                 (when (seq feed-urls) (str/join "\n" feed-urls)))]
                 [:button.btn.btn-success.pull-right {:type "submit"} "Create"]))
