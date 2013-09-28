@@ -25,7 +25,10 @@
   (let [data (http/get url)]
   (cond
     (= (:status @data) 200)
-      (not (nil? (re-find #"<.* xmlns.*>" (:body @data))))
+      (cond
+        (re-find #"<item>" (:body @data)) true
+        (re-find #"<entry>" (:body @data)) true
+        :else false)
     :else
       false)))
 
