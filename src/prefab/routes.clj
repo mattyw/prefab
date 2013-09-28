@@ -31,7 +31,7 @@
 
       (GET "/random" []
            (resp/redirect "/")) ; TODO grab a random Fab url
-      (GET "/" [] (views/index-page 10 []))
+      (GET "/" [] (views/index-page (feed/number-of-feeds redis) []))
       (route/resources "/")
       (route/not-found "Not found."))
     compojure.handler/site))
