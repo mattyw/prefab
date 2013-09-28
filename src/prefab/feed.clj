@@ -1,5 +1,5 @@
 (ns prefab.feed
-  (:require [taoensso.carmine :as car]
+  (:require [taoensso.carmine :as car :refer (wcar)]
             [prefab.fetcher :as fetcher]
             [taoensso.timbre :refer (error)]
             [org.httpkit.client :as http]))
@@ -8,8 +8,10 @@
   (-> urls set hash))
 
 (defn number-of-feeds
-  []
-  (count (car/keys "prefab:feed*")))
+  [redis]
+  (count
+    (wcar redis
+      (car/keys "prefab:feed*"))))
 
 (defn feed-key [id]
   (str "prefab:feed:" id))
