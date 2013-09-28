@@ -36,14 +36,14 @@
       stop-server
       stop-fetcher))
 
-(defn system []
-  (map->Prefab {:port (env :port 80)
+(defn system [port]
+  (map->Prefab {:port (env :port port)
                 :redis {:pool {}
                         :spec {:host (env :redis-host "127.0.0.1")
                                :port (env :redis-port 6379)}}}))
 
 (defn -main []
-  (-> (system)
+  (-> (system 8080)
       start-handler
       start-server
       start-fetcher))

@@ -22,7 +22,7 @@
   "Creates and initializes the system under development in the Var
   #'system."
   []
-  (alter-var-root #'system (constantly (system/system))))
+  (alter-var-root #'system (constantly (system/system 8080))))
 
 (defn start
   "Starts the system running, updates the Var #'system."
