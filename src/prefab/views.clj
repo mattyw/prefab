@@ -1,6 +1,6 @@
 (ns prefab.views
   (:require [hiccup.core :refer :all]
-            [hiccup.element :refer [unordered-list]]
+            [hiccup.element :refer [unordered-list ordered-list]]
             [hiccup.page :as page :refer [include-css]]
             ))
 
@@ -24,7 +24,19 @@
   [feed-count random-feeds]
   [:h1 "Welcome to Prefab"]
   [:span feed-count " feeds and counting"]
-  (unordered-list {:class "list-unstyled"} (map #(vector :a {:link (:url %)} (:title %)) random-feeds))
+  (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (:link %)} (:title %)) random-feeds))
   [:a {:class "btn btn-primary" :href "/feed"} "Create New Feed"]
   "&nbsp;"
   [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"])
+
+(defn entry
+  "Renders a specific entry within a given feed"
+  [entry]
+  [:article {:class "feed-entry"}
+   [:h2 (:title entry)]
+   [:div (:content entry)]])
+
+(defpage feed-view
+  [feed]
+  [:h1 (:title feed)]
+  (ordered-list {:class "list-unstyled"} (map entry (:entries feed))))
