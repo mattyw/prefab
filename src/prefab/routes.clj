@@ -55,14 +55,15 @@
                         :publishedDate "13 Apr 2010 12:40:07 -0700"
                         :categories []}]}])
 
-
 (defn app [system]
   (->
     (routes
       (GET "/feed/:id" [id]
            (views/feed-view (rand-nth feeds)))
-      (POST "/feed" {params :params}
-            (response "TODO create feed"))
+      (POST "/feed" {{:keys [urls]} :params}
+            (when-let [urls (if (coll? urls) (set urls))]
+              (wcar redis (feed/create-feed urls))
+              (redirect-after-post (feed-url (feed/feed-id urls)))))
 
       (GET "/random" []
            (resp/redirect (-> feeds rand-nth :link)))
