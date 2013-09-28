@@ -1,5 +1,7 @@
 (ns prefab.fetcher
-  (:require [taoensso.carmine :as car :refer (wcar)]
+  (:require [prefab.util :refer (min->ms)]
+            [prefab.refresher :as refresher]
+            [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as mq]
             [taoensso.timbre :refer (error warn info infof)]
             [clj-rome.reader :refer (build-feed)]
@@ -8,6 +10,7 @@
 
 (def qname "prefab:fetcher")
 (def max-attempts 3)
+(def refresh-interval (min->ms 5))
 
 (defn url-key [url] (str "prefab:url:" url))
 
@@ -16,6 +19,8 @@
         (car/get (url-key url))))
 
 (defn enqueue [url] (mq/enqueue qname url))
+
+(defn clear-queue [redis] (mq/clear-queues redis qname))
 
 (defn- extract-entry [entry]
   (-> entry
@@ -37,7 +42,8 @@
   (try
     (infof "Fetching feed: %s" url)
     (wcar redis
-          (car/set (url-key url) (fetch url)))
+          (car/set (url-key url) (fetch url))
+          (refresher/refresh-in refresh-interval url))
     {:status :success}
     (catch IOException e
       (if (< attempts max-attempts)

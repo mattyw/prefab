@@ -1,17 +1,20 @@
 (ns user
   "Tools for interactive development with the REPL. This file should
   not be included in a production build of the application."
-  (:require
-   [clojure.java.io :as io]
-   [clojure.java.javadoc :refer (javadoc)]
-   [clojure.pprint :refer (pprint)]
-   [clojure.reflect :refer (reflect)]
-   [clojure.repl :refer (apropos dir doc find-doc pst source)]
-   [clojure.set :as set]
-   [clojure.string :as str]
-   [clojure.test :as test]
-   [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-   [prefab.system :as system]))
+  (:require [clojure.java.io :as io]
+            [clojure.java.javadoc :refer (javadoc)]
+            [clojure.pprint :refer (pprint)]
+            [clojure.reflect :refer (reflect)]
+            [clojure.repl :refer (apropos dir doc find-doc pst source)]
+            [clojure.set :as set]
+            [clojure.string :as str]
+            [clojure.test :as test]
+            [clojure.tools.namespace.repl :refer (refresh refresh-all)]
+            [taoensso.carmine :as car :refer (wcar)]
+            [prefab.system :as system]
+            [prefab.feed :as feed]
+            [prefab.fetcher :as fetcher]
+            [prefab.refresher :as refresher]))
 
 (def system
   "A Var containing an object representing the application under
@@ -45,5 +48,7 @@
 (defn reset
   "Stops the system, reloads modified source files, and restarts it."
   []
+  (when system
+    (fetcher/clear-queue (:redis system)))
   (stop)
   (refresh :after 'user/go))
