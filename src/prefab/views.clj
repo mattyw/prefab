@@ -40,17 +40,19 @@
    [:div (:content entry)]])
 
 (defpage feed-view
-  [feed]
+  [id feed]
   [:h1 (:title feed)]
+  [:a {:href (str "/feed/edit/" id)} "(edit)"]
   (ordered-list {:class "list-unstyled"} (map entry (:entries feed))))
 
 (defpage feed-edit
-  [parent-feed]
+  [parent-feed-urls]
   (form/form-to {:id "feed-create"} [:post "/feed"]
-                [:div {:class "form-group"}
-                 [:label {:for "feed-name"} "Feed Name"]
-                 (form/text-field {:class "form-control" :id "feed-name"} "Feed[name]")]
+                ;[:div {:class "form-group"}
+                ; [:label {:for "feed-name"} "Feed Name"]
+                ; (form/text-field {:class "form-control" :id "feed-name"} "Feed[name]")]
                 [:div {:class "form-group"}
                  [:label {:for "feed-urls"} "RSS Feeds"]
-                 (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]")]
+                 (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]"
+                                 (when-not (nil? parent-feed-urls) (clojure.string/join "\n" parent-feed-urls)))]
                 [:button {:type "submit" :class "btn btn-success pull-right"} "Create"]))

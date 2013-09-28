@@ -65,9 +65,9 @@
       (GET "/feed" []
            (views/feed-edit nil))
       (GET "/feed/edit/:id" [id]
-           (views/feed-edit nil)) ;; TODO - this should pass off a Prefab feed
+           (views/feed-edit (wcar redis (feed/feed-urls id))))
       (GET "/feed/:id" [id]
-           (views/feed-view (rand-nth feeds)))
+           (views/feed-view id (rand-nth feeds)))
       (POST "/feed" {{:keys [urls]} :params}
             (when-let [urls (if (coll? urls) (set urls))]
               (wcar redis (feed/create-feed urls))
