@@ -20,7 +20,7 @@
 (defn- extract-entry [entry]
   (-> entry
       (select-keys [:link :contributors :author :authors :title :uri
-                    :update-date :categories :links])
+                    :published-date :categories :links])
       (assoc :content (get-in entry [:description :value]))
       (assoc :title-ex (get-in entry [:title-ex :value]))))
 

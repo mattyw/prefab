@@ -45,15 +45,19 @@
   [[entry source]]
   [:article.feed-entry.panel.panel-default
    [:div.panel-heading
-    [:h2.panel-title (:title entry)
-     [:small.pull-right (:title source)]]]
+    [:h2.panel-title
+     [:small.pull-right (:title source) " at " (:published-date entry)]
+     (:title entry)]]
    [:div.panel-body (:content entry)]])
 
 (defpage feed-view
   [id feeds]
-  [:a {:href (str "/feed/edit/" id)} "(edit)"]
-  ; TODO - pretty sure there's a better way than 3 nested maps to do this...
-  (ordered-list {:class "list-unstyled"} (map entry (mapcat #(map vector (:entries %) (repeat %)) feeds))))
+  (let [entries (mapcat #(map vector (:entries %) (repeat %)) feeds)]
+    (list
+      [:a {:href (str "/feed/edit/" id)} "(edit)"]
+      (ordered-list {:class "list-unstyled"} (map entry (->> entries
+                                                             (sort-by #(:published-date (first %)))
+                                                             reverse))))))
 
 (defpage feed-edit
   [parent-feed-urls]
