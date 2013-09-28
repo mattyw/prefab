@@ -26,11 +26,18 @@
 (defpage index-page
   [feed-count random-feeds]
   [:h1 "Welcome to Prefab"]
+  [:p {:class "lead"} "Prefab is an RSS-feed aggregator. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
   [:span feed-count " feeds and counting"]
   (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (:link %)} (:title %)) random-feeds))
   [:a {:class "btn btn-primary" :href "/feed"} "Create New Feed"]
   "&nbsp;"
-  [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"])
+  [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"]
+  [:p "<br><br>Prefab is a new way of doing rss feed aggregation.<br>
+    * You create a prefab feed with a list of existing rss feeds.<br>
+    * All prefab feeds are public<br>
+    * All feeds are immutable, so editing existing feeds simply creates a new feed.<br>
+    * New feeds can be created by combining 2 or more existing feeds.<br>
+    * Because all feeds are public and immutable there's no need to signup."])
 
 (defn entry
   "Renders a specific entry within a given feed"
