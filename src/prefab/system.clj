@@ -20,7 +20,8 @@
 (defn- start-fetcher [{:keys [redis] :as system}]
   (assoc system :fetcher (fetcher/fetcher redis)))
 
-(defn- stop-fetcher [{:as system}]
+(defn- stop-fetcher [{:keys [fetcher] :as system}]
+  (fetcher/stop-fetcher fetcher)
   (assoc system :fetcher nil))
 
 (defn start [system]
