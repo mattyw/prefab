@@ -34,15 +34,18 @@
 
 (defn entry
   "Renders a specific entry within a given feed"
-  [entry]
-  [:article {:class "feed-entry"}
-   [:h2 (:title entry)]
-   [:div (:content entry)]])
+  [[entry source]]
+  [:article.feed-entry.panel.panel-default
+   [:div.panel-heading
+    [:h2.panel-title (:title entry)
+     [:small.pull-right (:title source)]]]
+   [:div.panel-body (:content entry)]])
 
 (defpage feed-view
   [id feeds]
   [:a {:href (str "/feed/edit/" id)} "(edit)"]
-  (ordered-list {:class "list-unstyled"} (map entry (mapcat :entries feeds))))
+  ; TODO - pretty sure there's a better way than 3 nested maps to do this...
+  (ordered-list {:class "list-unstyled"} (map entry (mapcat #(map vector (:entries %) (repeat %)) feeds))))
 
 (defpage feed-edit
   [parent-feed-urls]
@@ -50,8 +53,8 @@
                 ;[:div {:class "form-group"}
                 ; [:label {:for "feed-name"} "Feed Name"]
                 ; (form/text-field {:class "form-control" :id "feed-name"} "Feed[name]")]
-                [:div {:class "form-group"}
+                [:div.form-group
                  [:label {:for "feed-urls"} "RSS Feeds"]
                  (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]"
                                  (when-not (nil? parent-feed-urls) (clojure.string/join "\n" parent-feed-urls)))]
-                [:button {:type "submit" :class "btn btn-success pull-right"} "Create"]))
+                [:button.btn.btn-success.pull-right {:type "submit"} "Create"]))
