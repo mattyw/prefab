@@ -1,6 +1,7 @@
 (ns prefab.system
   (:require [prefab.routes :as routes]
             [prefab.fetcher :as fetcher]
+            [prefab.util :as util :refer (int*)]
             [taoensso.timbre :refer (error warn info infof)]
             [environ.core :refer (env)]
             [org.httpkit.server :refer (run-server)]))
@@ -44,13 +45,10 @@
       stop-fetchers))
 
 (defn system [port]
-  (map->Prefab {:port (env :port port)
+  (map->Prefab {:port (int* (env :port port))
                 :redis {:pool {}
                         :spec {:host (env :redis-host "127.0.0.1")
-                               :port (env :redis-port 6379)}}}))
+                               :port (int* (env :redis-port 6379))}}}))
 
-(defn -main []
-  (-> (system 8080)
-      start-handler
-      start-server
-      start-fetchers))
+(defn -main [& args]
+  (start (system 8080)))
