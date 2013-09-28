@@ -27,32 +27,37 @@
   [feed-count random-feeds]
   [:h1 "Welcome to Prefab"]
   [:p {:class "lead"} "Prefab is an RSS-feed aggregator. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
+  [:p "Prefab is a new way of doing rss feed aggregation."]
+  [:ul
+    [:li "You create a prefab feed with a list of existing rss feeds."]
+    [:li "All prefab feeds are public"]
+    [:li "All feeds are immutable, so editing existing feeds simply creates a new feed."]
+    [:li "New feeds can be created by combining 2 or more existing feeds."]
+    [:li "Because all feeds are public and immutable there's no need to signup."]]
   [:span feed-count " feeds and counting"]
   (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (:link %)} (:title %)) random-feeds))
   [:a {:class "btn btn-primary" :href "/feed"} "Create New Feed"]
   "&nbsp;"
-  [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"]
-  [:p "<br><br>Prefab is a new way of doing rss feed aggregation.<br>
-    * You create a prefab feed with a list of existing rss feeds.<br>
-    * All prefab feeds are public<br>
-    * All feeds are immutable, so editing existing feeds simply creates a new feed.<br>
-    * New feeds can be created by combining 2 or more existing feeds.<br>
-    * Because all feeds are public and immutable there's no need to signup."])
+  [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"])
 
 (defn entry
   "Renders a specific entry within a given feed"
   [[entry source]]
   [:article.feed-entry.panel.panel-default
    [:div.panel-heading
-    [:h2.panel-title (:title entry)
-     [:small.pull-right (:title source)]]]
+    [:h2.panel-title
+     [:small.pull-right (:title source) " at " (:published-date entry)]
+     (:title entry)]]
    [:div.panel-body (:content entry)]])
 
 (defpage feed-view
   [id feeds]
-  [:a {:href (str "/feed/edit/" id)} "(edit)"]
-  ; TODO - pretty sure there's a better way than 3 nested maps to do this...
-  (ordered-list {:class "list-unstyled"} (map entry (mapcat #(map vector (:entries %) (repeat %)) feeds))))
+  (let [entries (mapcat #(map vector (:entries %) (repeat %)) feeds)]
+    (list
+      [:a {:href (str "/feed/edit/" id)} "(edit)"]
+      (ordered-list {:class "list-unstyled"} (map entry (->> entries
+                                                             (sort-by #(:published-date (first %)))
+                                                             reverse))))))
 
 (defpage feed-edit
   [parent-feed-urls]
