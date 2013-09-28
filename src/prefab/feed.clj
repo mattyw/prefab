@@ -1,10 +1,15 @@
 (ns prefab.feed
   (:require [taoensso.carmine :as car]
             [prefab.fetcher :as fetcher]
+            [taoensso.timbre :refer (error)]
             [org.httpkit.client :as http]))
 
 (defn feed-id [urls]
   (-> urls set hash))
+
+(defn number-of-feeds
+  []
+  (count (car/keys "prefab:feed*")))
 
 (defn feed-key [id]
   (str "prefab:feed:" id))
@@ -43,5 +48,5 @@
       (validate-feeds urls)
         (add-feed k urls)
       :else
-        (println "feed not valid"))
+        (error "feed not valid"))
     id))
