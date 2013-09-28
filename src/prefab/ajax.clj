@@ -1,12 +1,12 @@
 (ns prefab.ajax
-  (:require [clojure.data.json :as json]
+  (:require [cheshire.core :as json]
             [ring.util.response :as resp]
             ))
 
 (defn- build-response
   "Create a JSON-formatted response"
   [data]
-  (-> (resp/response (json/write-str data))
+  (-> (resp/response (json/generate-string data))
       (resp/content-type "application/json")))
 
 (defn response
