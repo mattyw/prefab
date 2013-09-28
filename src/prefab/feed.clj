@@ -23,19 +23,13 @@
   "A quick - hacky way of validating if the feed is valid or not"
   [url]
   (let [data (http/get url)]
-  (cond
-    (= (:status @data) 200)
-      (cond
-        (re-find #"<item>" (:body @data)) true
-        (re-find #"<entry>" (:body @data)) true
-        :else false)
-    :else
-      false)))
+    (boolean (and
+               (= (:status @data) 200)
+               (some #(re-find % (:body @data)) [#"<item>" #"<entry>"])))))
 
 (defn validate-feeds
   [urls]
-  (let [validated (map validate-feed urls)]
-      (every? (fn [url] (= true url)) validated)))
+  (every? validate-feed urls))
 
 (defn add-feed
   [key urls]
