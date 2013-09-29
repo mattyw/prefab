@@ -79,7 +79,9 @@
                         if redis.call('hsetnx', _:hkey-feeds, _:id, _:feed) == 0 then
                           return 0
                         end
-                        redis.call('hset', _:hkey-names, _:name, _:id)
+                        if _:name ~= '' then
+                          redis.call('hset', _:hkey-names, _:name, _:id)
+                        end
                         return 1"
                        {:hkey-names hkey-names
                         :hkey-feeds hkey-feeds}
