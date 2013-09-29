@@ -125,7 +125,7 @@
    [:div.panel-heading
     [:h2.panel-title
      [:small.pull-right (title source) " at " (published-date entry)]
-     (title entry)]]
+     [:a {:href (link entry)} (title entry)]]]
    [:div.panel-body (content entry)]])
 
 (defpage feed-view
