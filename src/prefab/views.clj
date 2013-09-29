@@ -51,7 +51,7 @@
   [:article.feed-entry.panel.panel-default
    [:div.panel-heading
     [:h2.panel-title
-     [:small.pull-right (title source) " at " (:published-date entry)]
+     [:small.pull-right (title source) " at " (published-date entry)]
      (title entry)]]
    [:div.panel-body (content entry)]])
 
