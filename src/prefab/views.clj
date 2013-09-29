@@ -61,8 +61,7 @@
   [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"]
   [:br]
   [:center [:h2 "Getting Started with Prefab"]
-  [:iframe {:width "560" :height "315" :src "//www.youtube.com/embed/JQB5AnCy4Uw" :frameborder "0" :allowfullscreen "true"}]])
-  ;TODO Correct video when it's done
+  [:iframe {:width "560" :height "315" :src "//www.youtube.com/embed/kab9yAnHkwE" :frameborder "0" :allowfullscreen "true"}]])
 
 (defn entry
   "Renders a specific entry within a given feed"
