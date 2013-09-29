@@ -3,7 +3,9 @@ define(function(require) {
 
 	require('domReady!');
 
-	$('#feed-create').on('submit', function(evt) {
+	var form = $('#feed-create');
+
+	form.on('submit', function(evt) {
 		evt.preventDefault();
 
 		var $this = $(this);
@@ -18,6 +20,26 @@ define(function(require) {
 		}).then(function(response) {
 			if (response.location) {
 				window.location.replace(response.location);
+			}
+		});
+	});
+
+	form.find('[name="Feed[name]"]').on('input', function(evt) {
+		var input = $(evt.target);
+
+		$.ajax({
+			url: '/feed-name-exists',
+			type: 'GET',
+			data: {
+				name: input.val()
+			}
+		}).then(function(response) {
+			var taken = (response === 'true');
+
+			input.closest('.form-group').toggleClass('has-error', taken);
+
+			if (input.get(0).setCustomValidity) {
+				input.get(0).setCustomValidity(taken ? "That feed name is already taken" : '');
 			}
 		});
 	});
