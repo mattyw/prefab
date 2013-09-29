@@ -2,9 +2,11 @@
   (:require [taoensso.carmine :as car :refer (wcar)]
             [clojure.string :as str]
             [prefab.fetcher :as fetcher]
+            [prefab.util :refer (str-take)]
             [taoensso.timbre :refer (error)]
             [org.httpkit.client :as http]))
 
+(def max-len-feed-name 256)
 (def hkey-feeds (car/key "prefab" "feeds"))
 (def hkey-names (car/key "prefab" "feed-names"))
 (def lkey-ids (car/key "prefab" "feed-ids"))
@@ -88,6 +90,7 @@
 (defn create-feed
   [redis name urls]
   (let [id (feed-id urls)
+        name (str-take max-len-feed-name name)
         feed {:name (normalize-name name) :urls urls}
         result (wcar redis
                      (car/lua
