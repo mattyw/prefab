@@ -21,7 +21,9 @@
            "http://reddit.com/r/clojure/.rss"
            "http://reddit.com/r/programming/.rss"]}
    {:name "ESPN News"
-    :urls ["http://sports.espn.go.com/espn/rss/news"]}])
+    :urls ["http://sports.espn.go.com/espn/rss/news"]}
+   {:name "XKCD"
+    :urls ["http://xkcd.com/rss.xml"]}])
 
 (defn create-feed [host {:keys [name urls] :as feed}]
   (infof "Creating feed '%s' %s" name urls)
