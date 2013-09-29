@@ -28,20 +28,25 @@
             (include-js "/js/twitter.js")
             [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
            [:body
-             [:nav {:class "navbar navbar-default" :role "navigation"}
-               [:ul {:class "nav navbar-nav"}
-                 [:li [:a {:href "/" :class "navbar-brand"} "Prefab"]]]
-                 [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]
+            [:nav {:class "navbar navbar-default" :role "navigation"}
+             [:div {:class "navbar-header"}
+              [:a {:href "/" :class "navbar-brand"} "Prefab"]]
+             [:ul {:class "nav navbar-nav"}
+              [:li [:a {:href "/feeds/new"} "New Feed"]]
+              [:li [:a {:href "/feeds"} "Browse Feeds"]]
+              [:li [:a {:href "/feeds/random"} "Random Feed"]]]
+             [:div {:class "navbar navbar-nav navbar-right"}
+              [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]]
             (when flash# [:div {:role "flash" :class "message"} flash#])
             [:div {:role "main" :class "container"} ~@content]
             [:footer {:class "navbar navbar-fixed-bottom"}
-              [:div {:class "panel-body"}
-                [:a 
-                    {:href "https://twitter.com/share"
-                     :class "twitter-share-button"
-                     :data-url "http://prefab.clojurecup.com"
-                     :data-text "Prefab: A new way of doing RSS feed aggregation"
-                     :data-hashtags"clojurecup"} "Tweet"]]
+             [:div {:class "panel-body"}
+              [:a 
+               {:href "https://twitter.com/share"
+                :class "twitter-share-button"
+                :data-url "http://prefab.clojurecup.com"
+                :data-text "Prefab: A new way of doing RSS feed aggregation"
+                :data-hashtags"clojurecup"} "Tweet"]]
              ]])))))
 (defn wrap-render-flash
   "Middleware to render flash messages"
