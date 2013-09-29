@@ -21,9 +21,16 @@
 (defn has-feed? [redis url]
   (= 1 (wcar redis (car/hexists hkey-urls url))))
 
+(defn all-urls [redis]
+  (wcar redis (car/hkeys hkey-urls)))
+
 (defn enqueue [url] (mq/enqueue qname url))
 
 (defn clear-queue [redis] (mq/clear-queues redis qname))
+
+(defn fetch-all [redis]
+  (when-let [urls (all-urls redis)]
+    (wcar redis (doseq [url urls] (enqueue url)))))
 
 (defn fetch
   "Fetches a feed, caches it, then schedules it to be refreshed"

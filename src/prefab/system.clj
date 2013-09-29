@@ -47,6 +47,11 @@
     (refresher/stop-refresher refresher))
   (assoc system :refresher nil))
 
+(defn refresh-feeds [{:keys [redis] :as system}]
+  (info "Enqueuing refreshes for all existing feeds (if any)...")
+  (fetcher/fetch-all redis)
+  system)
+
 ;; all together now
 
 (defn start [system]
@@ -54,7 +59,8 @@
       (assoc :handler (routes/app system))
       start-server
       start-fetchers
-      start-refresher))
+      start-refresher
+      refresh-feeds))
 
 (defn stop [system]
   (-> system
