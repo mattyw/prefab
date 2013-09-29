@@ -75,12 +75,11 @@
 (defn valid-urls? [urls] (every? valid-url? urls)) ;; TODO parallelize
 
 (defn feed-exists?
-  ([redis id] (not (zero? (wcar redis (car/hexists hkey-feeds id))))))
+  ([redis id] (pos? (wcar redis (car/hexists hkey-feeds id)))))
 
 (defn feed-name-exists?
   [redis name]
   (let [name (->> name (str-take max-len-feed-name) (normalize-name))]
-    (error "exists? "name)
     (pos? (wcar redis (car/hexists hkey-names name)))))
 
 (defn get-feed
