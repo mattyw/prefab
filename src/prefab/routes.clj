@@ -38,8 +38,8 @@
     (if-let [[feed-id created?] (feed/create-feed redis name urls)]
       (-> (ajax/redirect (feed-url feed-id))
           (assoc :flash (if created?
-                          "Feed created!"
-                          "A feed with those URLs already exists!")))
+                          {:type :success :message "Feed created!"}
+                          {:type :error :message "A feed with those URLs already exists!"})))
       (ajax/error "Failed to create feed"))))
 
 (defn app [{:keys [redis] :as system}]
@@ -83,8 +83,8 @@
             (debugf "Creating feed from URLs: %s" urls)
             (when (coll? urls)
               (create-feed redis headers name urls)))
-      (GET "/feed-name-exists/:name" [name]
-           (str (feed/valid-name? redis name)))
+      (GET "/feed-name-exists" {{name "name"} :query-params}
+           (if (feed/feed-name-exists? redis name) "true" "false"))
       (GET "/" [] (views/index-page (feed/number-of-feeds redis) []))
       (route/resources "/")
       (route/not-found "Not found."))
