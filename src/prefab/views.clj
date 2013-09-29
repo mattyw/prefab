@@ -28,6 +28,10 @@
     (with-request request
       (handler request))))
 
+(defn format-title
+  [title]
+  (if title (str title " - Prefab") "Prefab"))
+
 (defmacro defpage
   [page-name page-vars blocks]
   "Creates a function to render page with a common shell around it
@@ -36,7 +40,8 @@
         title (:title blocks "Prefab")]
     `(defn ~page-name ~page-vars
        (let [flash# (get *request* :flash)
-             url# (get *request* :uri)]
+             url# (get *request* :uri)
+             title# (format-title ~(:title blocks))]
          (response
            (page/html5
              [:head
@@ -167,16 +172,18 @@
 
 (defpage feed-edit
   [feed-urls]
-  (form/form-to {:id "feed-create"} [:post "/feeds"]
-                [:div {:class "form-group"}
-                 [:label {:for "feed-name"} "Feed Name"]
-                 (form/text-field {:id "feed-name"
-                                   :class "form-control"
-                                   :placeholder "(optional)"
-                                   :maxlength feed/max-len-feed-name}
-                                  "Feed[name]")]
-                [:div.form-group
-                 [:label {:for "feed-urls"} "RSS Feeds"]
-                 (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]"
-                                 (when (seq feed-urls) (str/join "\n" feed-urls)))]
-                [:button.btn.btn-success.pull-right {:type "submit"} "Create"]))
+  {:title (if (empty? feed-urls) "New Feed" "Edit Feed")
+   :content
+   (form/form-to {:id "feed-create"} [:post "/feeds"]
+                 [:div {:class "form-group"}
+                  [:label {:for "feed-name"} "Feed Name"]
+                  (form/text-field {:id "feed-name"
+                                    :class "form-control"
+                                    :placeholder "(optional)"
+                                    :maxlength feed/max-len-feed-name}
+                                   "Feed[name]")]
+                 [:div.form-group
+                  [:label {:for "feed-urls"} "RSS Feeds"]
+                  (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]"
+                                  (when (seq feed-urls) (str/join "\n" feed-urls)))]
+                 [:button.btn.btn-success.pull-right {:type "submit"} "Create"])})
