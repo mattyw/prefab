@@ -68,7 +68,8 @@
             (debugf "Creating feed from URLs: %s" urls)
             (when (coll? urls)
               (create-feed redis headers name urls)))
-
+      (GET "/feed-name-exists/:name" [name]
+           (str (feed/valid-name? redis name)))
       (GET "/random" []
            (resp/redirect
              (let [ids (feed/all-feed-ids redis)]
