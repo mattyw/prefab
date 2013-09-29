@@ -25,6 +25,7 @@
             (include-css "/lib/bootstrap.min.css")
             (include-css "/css/prefab.css")
             (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
+            (include-js "/js/twitter.js")
             [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
            [:body
              [:nav {:class "navbar navbar-default" :role "navigation"}
@@ -32,8 +33,15 @@
                  [:li [:a {:href "/" :class "navbar-brand"} "Prefab"]]]
                  [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]
             (when flash# [:div {:role "flash" :class "message"} flash#])
-            [:div {:role "main" :class "container"} ~@content]])))))
-
+            [:div {:role "main" :class "container"} ~@content]
+            [:footer {:class "navbar navbar-fixed-bottom"}
+              [:a 
+                  {:href "https://twitter.com/share"
+                   :class "twitter-share-button"
+                   :data-url "http://prefab.clojurecup.com"
+                   :data-text "Prefab: A new way of doing RSS feed aggregation"
+                   :data-hashtags"clojurecup"} "Tweet"]
+             ]])))))
 (defn wrap-render-flash
   "Middleware to render flash messages"
   [handler]
