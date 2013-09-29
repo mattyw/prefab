@@ -117,6 +117,4 @@
             (fetcher/fetch redis url))
           (catch Exception e
             (error e "Failed to pre-fetch URL:" url))))
-      (wcar redis
-            (car/save))
       [id (not (zero? result))])))
