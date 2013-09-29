@@ -53,6 +53,8 @@
                  prev-page (if (pos? page) (format "/feeds?page=%d&size=%d" (dec page) size))
                  next-page (if (< (* (inc page) size) num-feeds) (format "/feeds?page=%d&size=%d" (inc page) size))]
              (views/list-feeds feeds prev-page next-page)))
+      (GET "/gettingstarted" []
+           (views/getting-started))
       (GET "/feeds/new" []
            (views/feed-edit nil))
       (GET "/feeds/random" []

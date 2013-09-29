@@ -79,6 +79,7 @@
     [:li "All feeds are immutable, so editing existing feeds creates a new feed."]
     [:li "New feeds can be created by combining 2 or more existing feeds."]
     [:li "Because all feeds are public and immutable there's no need to signup."]]
+  [:h2 [:a {:href "/gettingstarted"} "Watch our Getting Started Video"]]
   [:span feed-count " feeds and counting"]
   (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (link %)} (title %)) random-feeds))
   [:a {:class "btn btn-primary" :href "/feeds/new"} "Create New Feed"]
@@ -86,9 +87,12 @@
   [:a {:class "btn btn-primary" :href "/feeds"} "List all feeds"]
   "&nbsp;"
   [:a {:class "btn btn-primary" :href "/feeds/random"} "Go to random feed"]
-  [:br]
-  [:center [:h2 "Getting Started with Prefab"]
-  [:iframe {:width "560" :height "315" :src "//www.youtube.com/embed/kab9yAnHkwE" :frameborder "0" :allowfullscreen "true"}]])
+  [:br])
+
+(defpage getting-started
+  []
+  [:iframe {:width "960" :height "720" :src "//www.youtube.com/embed/sGV6Af0gGjo" :frameborder "0" :allowfullscreen "true"}])
+
 
 (defn entry
   "Renders a specific entry within a given feed"
