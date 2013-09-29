@@ -72,19 +72,20 @@
                 [:ul.nav.navbar-nav
                  [:li [:a {:href "/feeds/new"} "New Feed"]]
                  [:li [:a {:href "/feeds"} "Browse Feeds"]]
-                 [:li [:a {:href "/feeds/random"} "Random Feed"]]
-                 [:li [:a {:href "http://clojurecup.com/app.html?app=prefab"} "Vote for us!"]]]]]
+                 [:li [:a {:href "/feeds/random"} "Random Feed"]]]]]
               [:div {:role "main" :class "container"}
                (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
                ~(:content blocks)]
-              [:footer {:class "navbar navbar-fixed-bottom"}
+              [:footer.navbar.navbar-fixed-bottom.text-center
+               [:small.text-muted.authors "Created for ClojureCup by Matty Williams, Sam Carter, Logan Linn, and Scott Rabin"]
                [:div {:class "panel-body"}
                 [:a
                  {:href "https://twitter.com/share"
                   :class "twitter-share-button"
                   :data-url "http://prefab.clojurecup.com"
                   :data-text "Prefab: A new way of doing RSS feed aggregation"
-                  :data-hashtags"clojurecup"} "Tweet"]]
+                  :data-hashtags "clojurecup"} "Tweet"]
+                [:a.btn.btn-success {:href "http://clojurecup.com/app.html?app=prefab"} "Vote for us!"]]
                ]]))))))
 
 (defpage index-page
