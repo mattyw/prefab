@@ -5,6 +5,8 @@
             [hiccup.form :as form]
             [ring.util.response :refer (response)]
             [clojure.string :as str]
+            [taoensso.timbre :refer (debug debugf)]
+            [prefab.util :refer (str-take)]
             [prefab.views.helpers :as helper]
             [prefab.feed-source :refer (title link content entries published-date feed?)]
             [prefab.feed :as feed]))
@@ -46,13 +48,13 @@
            (page/html5
              [:head
               [:meta {:charset "utf-8"}]
-              [:title ~title]
+              [:title title#]
               [:meta {:name "description" :content "RSS Feed aggregation service"}]
               [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
               (when *request*
                 (list [:meta {:property "og:url" :content (get *request* :uri)}]
                       [:meta {:property "og:type" :content "website"}]
-                      [:meta {:property "og:title" :content ~title}]
+                      [:meta {:property "og:title" :content title#}]
                       [:meta {:property "og:image" :content ""}]))
               (include-css "/lib/bootstrap.min.css")
               (include-css "/css/prefab.css")
@@ -128,40 +130,44 @@
 
 (defpage feed-view
   [id {:keys [urls name] :as feed} feeds]
-  (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))
-        feed-name (if (empty? name) "(No name)" name)]
-    (list
-      [:div.social-sharing.pull-right.h1
-       (helper/share-twitter (feed-url id)
-                             (if (empty? name)
-                               "Check out this RSS feed! #prefab #clojurecup"
-                               (format "Check out this RSS feed, %s! #prefab #clojurecup" feed-name)))
-       (helper/share-facebook (feed-url id)
+  {:title (when name (str-take 8 name))
+   :content
+   (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))
+         feed-name (if (empty? name) "(No name)" name)]
+     (list
+       [:div.social-sharing.pull-right.h1
+        (helper/share-twitter (feed-url id)
                               (if (empty? name)
-                                (str "Check out this RSS feed on Prefab! " (helper/full-url (feed-url id)))
-                                (format "Check out this RSS feed, %s! %s" feed-name (feed-url id))))]
-      [:h1 feed-name " "
-       [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href (feed-edit-url id)
-                                                          :title (str "Create a new feed based on " feed-name)}]]
-       [:small.text-vmiddle [:a.glyphicon.glyphicon-flag {:href (feed-report-url id)
-                                                          :title "Report feed"}]]]
-      (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
-                                                             (sort-by #(published-date (first %)))
-                                                             reverse))))))
+                                "Check out this RSS feed! #prefab #clojurecup"
+                                (format "Check out this RSS feed, %s! #prefab #clojurecup" feed-name)))
+        (helper/share-facebook (feed-url id)
+                               (if (empty? name)
+                                 (str "Check out this RSS feed on Prefab! " (helper/full-url (feed-url id)))
+                                 (format "Check out this RSS feed, %s! %s" feed-name (feed-url id))))]
+       [:h1 feed-name " "
+        [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href (feed-edit-url id)
+                                                           :title (str "Create a new feed based on " feed-name)}]]
+        [:small.text-vmiddle [:a.glyphicon.glyphicon-flag {:href (feed-report-url id)
+                                                           :title "Report feed"}]]]
+       (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
+                                                              (sort-by #(published-date (first %)))
+                                                              reverse)))))})
 
 (defpage list-feeds
   [feeds prev-page next-page]
-  (list
-    [:h1 "Feeds"]
-    (if (empty? feeds)
-      [:div "No feeds found! Be the first to " [:a {:href "/feeds/new"} "create one!"]]
-      [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href "/feeds/new"
-                                                         :title "Create feed"}]])
-    [:ul.list-inline {} (map (fn [[id {:keys [name]}]]
-                               [:li.col-md-4.col-sm-6.col-xs-12 (link-to {} (feed-url id) (or name "(no name)"))])
-                             feeds)]
-    (when prev-page [:a {:href prev-page} "< Prev"])
-    (when next-page [:a {:href next-page} "Next >"])))
+  {:title "Feeds"
+   :content
+   (list
+     [:h1 "Feeds"]
+     (if (empty? feeds)
+       [:div "No feeds found! Be the first to " [:a {:href "/feeds/new"} "create one!"]]
+       [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href "/feeds/new"
+                                                          :title "Create feed"}]])
+     [:ul.list-inline {} (map (fn [[id {:keys [name]}]]
+                                [:li.col-md-4.col-sm-6.col-xs-12 (link-to {} (feed-url id) (or name "(no name)"))])
+                              feeds)]
+     (when prev-page [:a {:href prev-page} "< Prev"])
+     (when next-page [:a {:href next-page} "Next >"]))})
 
 (defpage reported-feeds
   [feeds]
