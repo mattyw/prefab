@@ -57,8 +57,10 @@
            (views/feed-edit nil))
       (GET "/feeds/random" []
            (if-let [id (feed/rand-feed-id redis)]
-             (resp/redirect (feed-url id))
+             (-> (resp/redirect (feed-url id))
+                 (resp/status 307))
              (-> (resp/redirect "/")
+                 (resp/status 307)
                  (assoc :flash "No feeds exist!"))))
       (GET "/feeds/:id/edit" [id]
            (if-let [feed (feed/get-feed redis id)]
