@@ -61,8 +61,7 @@
   (info "Starting fetcher worker")
   (mq/worker redis qname
              {:handler (partial fetcher-handler redis)
-              ;; check back every 1s
-              :eoq-backoff-ms (fn [dry-runs] 1000)}))
+              :eoq-backoff-ms (fn [druns] (mq/exp-backoff druns {:max 5000}))}))
 
 (defn stop-fetcher [fetcher]
   (when fetcher (mq/stop fetcher)))
