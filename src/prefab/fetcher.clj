@@ -1,6 +1,6 @@
 (ns prefab.fetcher
   (:require [prefab.util :refer (min->ms)]
-            [prefab.feed-source :as feed]
+            [prefab.feed-source :as feed-source]
             [prefab.refresher :as refresher]
             [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as mq]
@@ -15,7 +15,7 @@
 (def refresh-interval (min->ms 5))
 
 (defn get-feed [redis url]
-  (feed/parse-feed (wcar redis (car/hget hkey-urls url))))
+  (feed-source/parse-feed (wcar redis (car/hget hkey-urls url))))
 
 (defn has-feed? [redis url]
   (= 1 (wcar redis (car/hexists hkey-urls url))))
@@ -29,7 +29,7 @@
   [redis url]
   (infof "Fetching feed: %s" url)
   (wcar redis
-        (car/hset hkey-urls url (-> url build-feed feed/parse-feed))
+        (car/hset hkey-urls url (-> url build-feed feed-source/parse-feed))
         (refresher/refresh-in refresh-interval url)))
 
 (defn fetcher-handler
