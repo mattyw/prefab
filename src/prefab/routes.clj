@@ -19,9 +19,10 @@
 (defn parse-feed-id
   "If url is a Prefab feed, returns the id, otherwise nil"
   [host url]
-  (-> (re-pattern (str "(?:" host "/feeds/(-?\\d+))$|^(-?\\d+)$"))
-      (re-find url)
-      (second)))
+  (let [pattern (str "(?:" host "/feeds/(-?\\d+))$|^(-?\\d+)$")
+        matches (re-find (re-pattern pattern) url)]
+    (or (second matches)
+        (-> matches next next first)))) ;; 3rd
 
 (defn expand-url
   "Returns a seq of URLs. Expands URL or id of a Prefab feed to a seq of that
