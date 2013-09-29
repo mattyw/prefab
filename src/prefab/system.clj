@@ -3,7 +3,8 @@
             [prefab.fetcher :as fetcher]
             [prefab.refresher :as refresher]
             [prefab.util :as util :refer (int*)]
-            [taoensso.timbre :refer (error warn info infof)]
+            [taoensso.timbre :as timbre :refer (error warn info infof)]
+            [clojure.string :as str]
             [environ.core :refer (env)]
             [org.httpkit.server :refer (run-server)]))
 
@@ -76,4 +77,5 @@
                                :port (int* (env :redis-port 6379))}}}))
 
 (defn -main [& args]
+  (timbre/set-level! (-> (env :log-level "WARN") str/lower-case keyword))
   (start (system 8080)))
