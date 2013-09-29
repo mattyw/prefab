@@ -13,12 +13,28 @@
 (defn feed-edit-url [id] (str "/feeds/" id "/edit"))
 (defn feed-report-url [id] (str "/feeds/" id "/report"))
 
+(def ^:dynamic *request* nil)
+
+(defmacro with-request
+  "Macro to capture current request in dynamic var for magically convenient things"
+  [request & body]
+  `(binding [*request* ~request]
+     ~@body))
+
+(defn wrap-with-request
+  "Middleware to capture current request in dynamic var for magically convenient things"
+  [handler]
+  (fn [request]
+    (with-request request
+      (handler request))))
+
 (defmacro defpage
   [page-name page-vars & content]
-  "Creates a page with a common shell around it"
+  "Creates a function to render page with a common shell around it
+  The function first argument is request"
   `(defn ~page-name ~page-vars
-     (response
-       (fn [{flash# :flash}]
+     (let [flash# (get *request* :flash)]
+       (response
          (page/html5
            [:head
             [:meta {:charset "utf-8"}]
@@ -52,16 +68,6 @@
                 :data-text "Prefab: A new way of doing RSS feed aggregation"
                 :data-hashtags"clojurecup"} "Tweet"]]
              ]])))))
-
-(defn wrap-render-flash
-  "Middleware to render flash messages"
-  [handler]
-  (fn [request]
-    ;(debug request)
-    (let [{:keys [body] :as response} (handler request)]
-      (if (fn? body)
-        (assoc response :body (body {:flash (get-in request [:flash])}))
-        response))))
 
 (defpage index-page
   [feed-count random-feeds]

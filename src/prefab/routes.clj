@@ -88,5 +88,5 @@
       (GET "/" [] (views/index-page (feed/number-of-feeds redis) []))
       (route/resources "/")
       (route/not-found "Not found."))
-    views/wrap-render-flash
+    views/wrap-with-request
     compojure.handler/site))
