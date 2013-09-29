@@ -5,6 +5,7 @@
 
 (def qname "prefab:refresher")
 (def zkey "prefab:refresher-urls") ;; redis sorted set
+(def default-interval 10000) ;; 10sec
 
 (defrecord Refresher [redis pool refresh-fn fetch-limit interval])
 
@@ -45,7 +46,7 @@
 (defn refresher
   "Creates new refresher"
   [{:keys [redis pool refresh-fn fetch-limit interval num-threads]
-    :or {num-threads 1 fetch-limit 30 interval 2000}}]
+    :or {num-threads 1 fetch-limit 30 interval default-interval}}]
   (map->Refresher {:redis redis
                    :pool pool
                    :refresh-fn refresh-fn
