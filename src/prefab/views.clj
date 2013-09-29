@@ -94,14 +94,14 @@
    :title "Prefab"
    :content
    (list [:h1 "Welcome to Prefab"]
-         [:p {:class "lead"} "Prefab is a new way of doing RSS feed aggregation. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
+         [:p {:class "lead"} "Prefab is a new way of doing RSS feed aggregation."]
          [:p "It's new because:"]
          [:ul
           [:li "All prefab feeds are public"]
           [:li "All feeds are immutable, so editing existing feeds creates a new feed."]
           [:li "New feeds can be created by combining 2 or more existing feeds."]
           [:li "Because all feeds are public and immutable there's no need to signup."]]
-         [:h2 [:a {:href "/gettingstarted"} "Watch our Getting Started video"]]
+         [:h2 [:a {:href "/gettingstarted"} "Watch our getting started video"]]
          [:span feed-count " feeds and counting"]
          (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (link %)} (title %)) random-feeds))
          [:a {:class "btn btn-primary" :href "/feeds/new"} "Create New Feed"]
