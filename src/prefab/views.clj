@@ -119,7 +119,7 @@
 
 (defpage getting-started
   []
-  [:iframe {:width "960" :height "720" :src "//www.youtube.com/embed/sGV6Af0gGjo" :frameborder "0" :allowfullscreen "true"}])
+  [:iframe#getting-started {:width "960" :height "720" :src "//www.youtube.com/embed/sGV6Af0gGjo" :frameborder "0" :allowfullscreen "true"}])
 
 (defn entry
   "Renders a specific entry within a given feed"

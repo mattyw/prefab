@@ -61,3 +61,29 @@ footer {
 .feed-entry .panel-body * {
 	max-width: 100%;
 }
+
+/* coerce iframe to proper size */
+@media (min-width: 960px) {
+	#getting-started {
+		width: 960px;
+		height: 720px;
+	}
+}
+@media (max-width: 959px) {
+	#getting-started {
+		width: 720px;
+		height: 540px;
+	}
+}
+@media (max-width: 719px) {
+	#getting-started {
+		width: 540px;
+		height: 405px;
+	}
+}
+@media (max-width: 539px) {
+	#getting-started {
+		width: 400px;
+		height: 300px;
+	}
+}
