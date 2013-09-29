@@ -21,7 +21,8 @@
       (GET "/feeds/new" []
            (views/feed-edit nil))
       (GET "/feeds/:id/edit" [id]
-           (views/feed-edit (some-> (wcar redis (feed/get-feed id)) :urls)))
+           (if-let [feed (feed/get-feed redis id)]
+             (views/feed-edit (:urls feed))))
       (GET "/feeds/:id" [id]
            (if-let [feed (feed/get-feed redis id)]
              (views/feed-view id feed (map fetcher/get-feed (repeat redis) (:urls feed)))))
