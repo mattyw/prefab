@@ -7,6 +7,7 @@
             [taoensso.timbre :refer (debugf)]
             [prefab.views :as views]
             [prefab.feed :as feed]
+            [prefab.feed-source :as feedsrc]
             [prefab.ajax :as ajax]
             [prefab.fetcher :as fetcher]
             [clojure.data.json :as json]
@@ -43,7 +44,8 @@
   (->
     (routes
       (GET "/feeds" []
-           (views/list-feeds (feed/all-feed-ids redis))) ; TODO get the names of these feeds
+           (let [ids (feed/all-feed-ids redis)]
+             (views/list-feeds (map #(vector % (feed/get-feed redis %)) ids))))
       (GET "/feeds/new" []
            (views/feed-edit nil))
       (GET "/feeds/:id/edit" [id]
@@ -51,7 +53,7 @@
              (views/feed-edit (:urls feed))))
       (GET "/feeds/:id" [id]
            (if-let [feed (feed/get-feed redis id)]
-             (views/feed-view id feed (map fetcher/get-feed (repeat redis) (:urls feed)))))
+             (views/feed-view id feed (map (comp feedsrc/parse-feed fetcher/get-feed) (repeat redis) (:urls feed)))))
       (HEAD "/feeds/:id" [id]
             (if (feed/feed-exists? redis id)
               (response "")

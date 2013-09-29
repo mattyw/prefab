@@ -58,18 +58,21 @@
 
 (defpage feed-view
   [id {:keys [urls name] :as feed} feeds]
-  [:h1 name " "
-   [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href (feed-edit-url id)
-                                                      :title (str "Create a new feed based on " name)}]]]
-  (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))]
-    (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
-                                                           (sort-by #(published-date (first %)))
-                                                           reverse)))))
+  (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))
+        feed-name (if (empty? name) "(No name)" name)]
+    (list
+      [:h1 feed-name " "
+       [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href (feed-edit-url id)
+                                                          :title (str "Create a new feed based on " feed-name)}]]]
+      (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
+                                                             (sort-by #(published-date (first %)))
+                                                             reverse))))))
 
 (defpage list-feeds
-  [ids]
+  [feeds]
   [:h1 "All feeds"]
-  (ordered-list {} (map #(link-to {} (feed-url %) %) ids)))
+  (ordered-list {} (for [[id {:keys [urls name]}] feeds]
+                     (link-to {} (feed-url id) (or name "(No name)")))))
 
 (defpage feed-edit
   [feed-urls]

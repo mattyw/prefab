@@ -14,8 +14,9 @@
 (def max-attempts 3)
 (def refresh-interval (min->ms 5))
 
-(defn get-feed [redis url]
-  (feed-source/parse-feed (wcar redis (car/hget hkey-urls url))))
+(defn get-feed
+  ([redis url] (wcar redis (get-feed url)))
+  ([url] (car/hget hkey-urls url)))
 
 (defn has-feed? [redis url]
   (= 1 (wcar redis (car/hexists hkey-urls url))))

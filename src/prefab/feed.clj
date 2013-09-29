@@ -23,9 +23,8 @@
       (car/key)))
 
 (defn all-feed-ids
-  [redis]
-  (wcar redis
-        (car/hkeys hkey-feeds)))
+  ([redis] (wcar redis (all-feed-ids)))
+  ([] (car/hkeys hkey-feeds)))
 
 (defn number-of-feeds ;; TODO rename to num-feeds
   [redis]
