@@ -164,9 +164,9 @@
      [:h1 "Feeds"]
      (if (empty? feeds)
        [:div "No feeds found! Be the first to " [:a {:href "/feeds/new"} "create one!"]])
-     [:ul.list-inline {} (map (fn [[id {:keys [name]}]]
-                                [:li.col-md-4.col-sm-6.col-xs-12 (link-to {} (feed-url id) (or name "(no name)"))])
-                              feeds)]
+     [:ul.list-unstyled.row {} (map (fn [[id {:keys [name]}]]
+                                      [:li.col-md-4.col-sm-6 (link-to {} (feed-url id) (or name "(no name)"))])
+                                    feeds)]
      (when prev-page [:a {:href prev-page} "< Prev"])
      (when next-page [:a {:href next-page} "Next >"]))})
 
