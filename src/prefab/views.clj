@@ -49,7 +49,7 @@
   [:p "It's new because:"]
   [:ul
     [:li "All prefab feeds are public"]
-    [:li "All feeds are immutable, so editing existing feeds simply creates a new feed."]
+    [:li "All feeds are immutable, so editing existing feeds creates a new feed."]
     [:li "New feeds can be created by combining 2 or more existing feeds."]
     [:li "Because all feeds are public and immutable there's no need to signup."]]
   [:span feed-count " feeds and counting"]
