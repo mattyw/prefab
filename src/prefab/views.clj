@@ -64,21 +64,22 @@
               [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]
               ~(:head blocks)]
              [:body
-              [:header.navbar.navbar-default {:role "banner"}
-               [:div.navbar-header
-                [:button.navbar-toggle {:type "button" :data-toggle "collapse" :data-target ".prefab-navbar-collapse"}
-                 [:span.sr-only "Toggle navigation"]
-                 (repeat 3 [:span.icon-bar])]
-                [:a.navbar-brand {:href "/"} "Prefab"]]
-               [:nav.collapse.navbar-collapse.prefab-navbar-collapse {:role "navigation"}
-                [:ul.nav.navbar-nav
-                 [:li [:a {:href "/feeds/new"} "New Feed"]]
-                 [:li [:a {:href "/feeds"} "Browse Feeds"]]
-                 [:li [:a {:href "/feeds/random"} "Random Feed"]]]]]
-              [:div {:role "main" :class "container"}
-               (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
-               ~(:content blocks)]
-              [:footer.navbar.navbar-fixed-bottom.text-center
+              [:div#wrap
+               [:header.navbar.navbar-default {:role "banner"}
+                [:div.navbar-header
+                 [:button.navbar-toggle {:type "button" :data-toggle "collapse" :data-target ".prefab-navbar-collapse"}
+                  [:span.sr-only "Toggle navigation"]
+                  (repeat 3 [:span.icon-bar])]
+                 [:a.navbar-brand {:href "/"} "Prefab"]]
+                [:nav.collapse.navbar-collapse.prefab-navbar-collapse {:role "navigation"}
+                 [:ul.nav.navbar-nav
+                  [:li [:a {:href "/feeds/new"} "New Feed"]]
+                  [:li [:a {:href "/feeds"} "Browse Feeds"]]
+                  [:li [:a {:href "/feeds/random"} "Random Feed"]]]]]
+               [:div#main.container {:role "main"}
+                (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
+                ~(:content blocks)]]
+              [:footer.navbar.text-center
                [:small.text-muted.authors "Created for ClojureCup by Matty Williams, Sam Carter, Logan Linn, and Scott Rabin"]
                [:div {:class "panel-body"}
                 [:a
