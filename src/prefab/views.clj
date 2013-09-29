@@ -130,7 +130,9 @@
 
 (defpage feed-view
   [id {:keys [urls name] :as feed} feeds]
-  {:title (when name (str-take 8 name))
+  {:title (when name (if (<= (count name) 8)
+                       name
+                       (str (str-take 8 name) "...")))
    :content
    (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))
          feed-name (if (empty? name) "(No name)" name)]
