@@ -14,6 +14,14 @@
   [data]
   (build-response {:status "ok" :data data}))
 
+(defn error
+  "Create an appropriately-structured JSON payload for error message via AJAX"
+  ([message] (error message nil))
+  ([message data]
+   (cond-> {:status "error" :message message}
+     data (assoc :data data)
+     true (build-response))))
+
 (defn redirect
   "Create an appropriately-structured JSON payload for redirect via AJAX"
   [destination]

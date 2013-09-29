@@ -7,7 +7,7 @@
             [taoensso.timbre :refer (debugf)]
             [prefab.views :as views]
             [prefab.feed :as feed]
-            [prefab.ajax]
+            [prefab.ajax :as ajax]
             [prefab.fetcher :as fetcher]
             [clojure.data.json :as json]
             ))
@@ -32,13 +32,12 @@
 (defn create-feed [redis headers name urls]
   (let [host (get headers "host")
         urls (set (mapcat (partial expand-url redis host) urls))]
-    (debugf "name=%s URLS: %s" name urls)
     (if-let [[feed-id created?] (feed/create-feed redis name urls)]
-      (-> (prefab.ajax/redirect (feed-url feed-id))
+      (-> (ajax/redirect (feed-url feed-id))
           (assoc :flash (if created?
                           "Feed created!"
                           "A feed with those URLs already exists!")))
-      (response "Failed to create feed"))))
+      (ajax/error "Failed to create feed"))))
 
 (defn app [{:keys [redis] :as system}]
   (->
