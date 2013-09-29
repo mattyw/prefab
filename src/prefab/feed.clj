@@ -63,13 +63,15 @@
 
 (defn valid-urls? [urls] (every? valid-url? urls)) ;; TODO parallelize
 
-(defn valid-name?
-  ([redis name] (wcar redis (valid-name? name)))
-  ([name] (car/hexists hkey-names (name-key name))))
-
 (defn feed-exists?
   ([redis id] (wcar redis (feed-exists? id)))
-  ([id] (not (zero? (car/hexists hkey-feeds id)))))
+  ([id] (pos? (car/hexists hkey-feeds id))))
+
+(defn feed-name-exists?
+  [redis name]
+  (let [name (->> name (str-take max-len-feed-name) (normalize-name))]
+    (error "exists? "name)
+    (pos? (wcar redis (car/hexists hkey-names name)))))
 
 (defn get-feed
   ([redis id] (wcar redis (get-feed id)))
@@ -90,8 +92,8 @@
 (defn create-feed
   [redis name urls]
   (let [id (feed-id urls)
-        name (str-take max-len-feed-name name)
-        feed {:name (normalize-name name) :urls urls}
+        name (->> name (str-take max-len-feed-name) (normalize-name))
+        feed {:name name :urls urls}
         result (wcar redis
                      (car/lua
                        "local current_id = redis.call('hget', _:hkey-names, _:name)
@@ -122,4 +124,4 @@
             (error e "Failed to pre-fetch URL:" url))))
       (wcar redis
             (car/save))
-      [id (not (zero? result))])))
+      [id (pos? result)])))
