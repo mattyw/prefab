@@ -7,6 +7,7 @@
 
 (def hkey-feeds (car/key "prefab" "feeds"))
 (def hkey-names (car/key "prefab" "feed-names"))
+(def lkey-ids (car/key "prefab" "feed-ids"))
 
 (defn feed-id [urls]
   (-> urls set hash))
@@ -25,6 +26,14 @@
 (defn all-feed-ids
   ([redis] (wcar redis (all-feed-ids)))
   ([] (car/hkeys hkey-feeds)))
+
+(defn get-feeds
+  "Returns map of feeds"
+  ([redis limit] (get-feeds redis limit 0))
+  ([redis limit offset]
+   (if-let [ids (seq (wcar redis (car/lrange lkey-ids offset (dec (+ offset limit)))))]
+     (->> (wcar redis (apply car/hmget hkey-feeds ids))
+          (zipmap ids)))))
 
 (defn number-of-feeds ;; TODO rename to num-feeds
   [redis]
@@ -81,9 +90,11 @@
                         if _:name ~= '' then
                           redis.call('hset', _:hkey-names, _:name, _:id)
                         end
+                        redis.call('lpush', _:lkey-ids, _:id)
                         return 1"
                        {:hkey-names hkey-names
-                        :hkey-feeds hkey-feeds}
+                        :hkey-feeds hkey-feeds
+                        :lkey-ids   lkey-ids}
                        {:id id
                         :feed (car/freeze feed)
                         :name (name-key name)}))]

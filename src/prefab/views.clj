@@ -69,10 +69,17 @@
                                                              reverse))))))
 
 (defpage list-feeds
-  [feeds]
-  [:h1 "All feeds"]
-  (ordered-list {} (for [[id {:keys [urls name]}] feeds]
-                     (link-to {} (feed-url id) (or name "(No name)")))))
+  [feeds prev-page next-page]
+  [:h1 "Feeds"]
+  (if (empty? feeds)
+    [:div "No feeds found! Be the first to " [:a {:href "/feeds/new"} "create one!"]]
+    [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href "/feeds/new"
+                                                       :title "Create feed"}]])
+  (ordered-list {} (map (fn [[id {:keys [name]}]]
+                          (link-to {} (feed-url id) (or name "(no name)")))
+                        feeds))
+  (when prev-page [:a {:href prev-page} "< Prev"])
+  (when next-page [:a {:href next-page} "Next >"]))
 
 (defpage feed-edit
   [feed-urls]

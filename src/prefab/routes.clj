@@ -4,12 +4,13 @@
             [compojure.route :as route]
             [ring.util.response :as resp :refer (response redirect-after-post)]
             [taoensso.carmine :as car :refer (wcar)]
-            [taoensso.timbre :refer (debugf)]
+            [taoensso.timbre :refer (debug debugf)]
             [prefab.views :as views]
             [prefab.feed :as feed]
             [prefab.feed-source :as feedsrc]
             [prefab.ajax :as ajax]
             [prefab.fetcher :as fetcher]
+            [prefab.util :refer (int*)]
             [clojure.data.json :as json]
             ))
 
@@ -43,9 +44,14 @@
 (defn app [{:keys [redis] :as system}]
   (->
     (routes
-      (GET "/feeds" []
-           (let [ids (feed/all-feed-ids redis)]
-             (views/list-feeds (map #(vector % (feed/get-feed redis %)) ids))))
+      (GET "/feeds" {:keys [query-params]}
+           (let [page (int* (get query-params "page" 0))
+                 size (min (int* (get query-params "size" 50)) 100)
+                 feeds (feed/get-feeds redis size page)
+                 num-feeds (feed/number-of-feeds redis)
+                 prev-page (if (pos? page) (format "/feeds?page=%d&size=%d" (dec page) size))
+                 next-page (if (< (* (inc page) size) num-feeds) (format "/feeds?page=%d&size=%d" (inc page) size))]
+             (views/list-feeds feeds prev-page next-page)))
       (GET "/feeds/new" []
            (views/feed-edit nil))
       (GET "/feeds/:id/edit" [id]
