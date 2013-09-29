@@ -35,12 +35,13 @@
             (when flash# [:div {:role "flash" :class "message"} flash#])
             [:div {:role "main" :class "container"} ~@content]
             [:footer {:class "navbar navbar-fixed-bottom"}
-              [:a 
-                  {:href "https://twitter.com/share"
-                   :class "twitter-share-button"
-                   :data-url "http://prefab.clojurecup.com"
-                   :data-text "Prefab: A new way of doing RSS feed aggregation"
-                   :data-hashtags"clojurecup"} "Tweet"]
+              [:div {:class "panel-body"}
+                [:a 
+                    {:href "https://twitter.com/share"
+                     :class "twitter-share-button"
+                     :data-url "http://prefab.clojurecup.com"
+                     :data-text "Prefab: A new way of doing RSS feed aggregation"
+                     :data-hashtags"clojurecup"} "Tweet"]]
              ]])))))
 (defn wrap-render-flash
   "Middleware to render flash messages"
