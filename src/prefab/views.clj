@@ -130,9 +130,9 @@
     [:div "No feeds found! Be the first to " [:a {:href "/feeds/new"} "create one!"]]
     [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href "/feeds/new"
                                                        :title "Create feed"}]])
-  (ordered-list {} (map (fn [[id {:keys [name]}]]
-                          (link-to {} (feed-url id) (or name "(no name)")))
-                        feeds))
+  [:ul.list-inline {} (map (fn [[id {:keys [name]}]]
+                             [:li.col-md-4.col-sm-6.col-xs-12 (link-to {} (feed-url id) (or name "(no name)"))])
+                           feeds)]
   (when prev-page [:a {:href prev-page} "< Prev"])
   (when next-page [:a {:href next-page} "Next >"]))
 
