@@ -65,6 +65,13 @@
       (GET "/feeds/:id/edit" [id]
            (if-let [feed (feed/get-feed redis id)]
              (views/feed-edit (:urls feed))))
+      (GET "/feeds/:id/report" [id]
+           (if (feed/feed-exists? redis id)
+             (feed/report-feed redis id))
+             (views/reported-thanks))
+      (GET "/feeds/reported" []
+           (let [feeds (feed/reported-feeds redis)]
+           (views/reported-feeds feeds)))
       (GET "/feeds/:id" [id]
            (if-let [feed (feed/get-feed redis id)]
              (views/feed-view id feed (map (comp feedsrc/parse-feed fetcher/get-feed) (repeat redis) (:urls feed)))))

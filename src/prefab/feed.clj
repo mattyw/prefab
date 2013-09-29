@@ -10,9 +10,20 @@
 (def hkey-feeds (car/key "prefab" "feeds"))
 (def hkey-names (car/key "prefab" "feed-names"))
 (def lkey-ids (car/key "prefab" "feed-ids"))
+(def lkey-reported (car/key "prefab" "reported-feeds"))
 
 (defn feed-id [urls]
   (-> urls set hash))
+
+(defn report-feed
+  [redis id]
+  (wcar redis
+        (car/lpush lkey-reported id)))
+
+(defn reported-feeds
+  [redis]
+  (wcar redis
+        (car/lrange lkey-reported 0 -1)))
 
 (defn- normalize-name [name]
   (if-let [name (if (string? name) (str/trim name))]
@@ -68,8 +79,7 @@
   ([name] (car/hexists hkey-names (name-key name))))
 
 (defn feed-exists?
-  ([redis id] (wcar redis (feed-exists? id)))
-  ([id] (not (zero? (car/hexists hkey-feeds id)))))
+  ([redis id] (not (zero? (wcar redis (car/hexists hkey-feeds id))))))
 
 (defn get-feed
   ([redis id] (wcar redis (get-feed id)))

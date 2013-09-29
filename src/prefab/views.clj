@@ -10,6 +10,7 @@
 
 (defn feed-url [id] (str "/feeds/" id))
 (defn feed-edit-url [id] (str "/feeds/" id "/edit"))
+(defn feed-report-url [id] (str "/feeds/" id "/report"))
 
 (defmacro defpage
   [page-name page-vars & content]
@@ -98,7 +99,9 @@
     (list
       [:h1 feed-name " "
        [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href (feed-edit-url id)
-                                                          :title (str "Create a new feed based on " feed-name)}]]]
+                                                          :title (str "Create a new feed based on " feed-name)}]]
+       [:small.text-vmiddle [:a.glyphicon.glyphicon-flag {:href (feed-report-url id)
+                                                          :title "Report feed"}]]]
       (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
                                                              (sort-by #(published-date (first %)))
                                                              reverse))))))
@@ -115,6 +118,14 @@
                         feeds))
   (when prev-page [:a {:href prev-page} "< Prev"])
   (when next-page [:a {:href next-page} "Next >"]))
+
+(defpage reported-feeds
+  [feeds]
+  (ordered-list {} feeds))
+
+(defpage reported-thanks
+  []
+  "Thank you for reporting this feed. Our admins will looks into it")
 
 (defpage feed-edit
   [feed-urls]
