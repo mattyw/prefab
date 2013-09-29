@@ -29,70 +29,82 @@
       (handler request))))
 
 (defmacro defpage
-  [page-name page-vars & content]
+  [page-name page-vars blocks]
   "Creates a function to render page with a common shell around it
   The function first argument is request"
-  `(defn ~page-name ~page-vars
-     (let [flash# (get *request* :flash)]
-       (response
-         (page/html5
-           [:head
-            [:meta {:charset "utf-8"}]
-            [:title "Prefab"]
-            [:meta {:name "description" :content "RSS Feed aggregation service"}]
-            [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-            (include-css "/lib/bootstrap.min.css")
-            (include-css "/css/prefab.css")
-            (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
-            (include-js "/js/twitter.js")
-            [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
-           [:body
-            [:nav {:class "navbar navbar-default" :role "navigation"}
-             [:div {:class "navbar-header"}
-              [:a {:href "/" :class "navbar-brand"} "Prefab"]]
-             [:ul {:class "nav navbar-nav"}
-              [:li [:a {:href "/feeds/new"} "New Feed"]]
-              [:li [:a {:href "/feeds"} "Browse Feeds"]]
-              [:li [:a {:href "/feeds/random"} "Random Feed"]]]
-             [:div {:class "navbar navbar-nav navbar-right"}
-              [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]]
-            [:div {:role "main" :class "container"}
-             (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
-             ~@content]
-            [:footer {:class "navbar navbar-fixed-bottom"}
-             [:div {:class "panel-body"}
-              [:a
-               {:href "https://twitter.com/share"
-                :class "twitter-share-button"
-                :data-url "http://prefab.clojurecup.com"
-                :data-text "Prefab: A new way of doing RSS feed aggregation"
-                :data-hashtags"clojurecup"} "Tweet"]]
-             ]])))))
+  (let [blocks (if (map? blocks) blocks `{:content ~blocks})
+        title (:title blocks "Prefab")]
+    `(defn ~page-name ~page-vars
+       (let [flash# (get *request* :flash)
+             url# (get *request* :uri)]
+         (response
+           (page/html5
+             [:head
+              [:meta {:charset "utf-8"}]
+              [:title ~title]
+              [:meta {:name "description" :content "RSS Feed aggregation service"}]
+              [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+              (when *request*
+                (list [:meta {:property "og:url" :content (get *request* :uri)}]
+                      [:meta {:property "og:type" :content "website"}]
+                      [:meta {:property "og:title" :content ~title}]
+                      [:meta {:property "og:image" :content ""}]))
+              (include-css "/lib/bootstrap.min.css")
+              (include-css "/css/prefab.css")
+              (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
+              (include-js "/js/twitter.js")
+              [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]
+              ~(:head blocks)]
+             [:body
+              [:nav {:class "navbar navbar-default" :role "navigation"}
+               [:div {:class "navbar-header"}
+                [:a {:href "/" :class "navbar-brand"} "Prefab"]]
+               [:ul {:class "nav navbar-nav"}
+                [:li [:a {:href "/feeds/new"} "New Feed"]]
+                [:li [:a {:href "/feeds"} "Browse Feeds"]]
+                [:li [:a {:href "/feeds/random"} "Random Feed"]]]
+               [:div {:class "navbar navbar-nav navbar-right"}
+                [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]]
+              [:div {:role "main" :class "container"}
+               (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
+               ~(:content blocks)]
+              [:footer {:class "navbar navbar-fixed-bottom"}
+               [:div {:class "panel-body"}
+                [:a
+                 {:href "https://twitter.com/share"
+                  :class "twitter-share-button"
+                  :data-url "http://prefab.clojurecup.com"
+                  :data-text "Prefab: A new way of doing RSS feed aggregation"
+                  :data-hashtags"clojurecup"} "Tweet"]]
+               ]]))))))
 
 (defpage index-page
   [feed-count random-feeds]
-  [:h1 "Welcome to Prefab"]
-  [:p {:class "lead"} "Prefab is a new way of doing RSS feed aggregation. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
-  [:p "It's new because:"]
-  [:ul
-    [:li "All prefab feeds are public"]
-    [:li "All feeds are immutable, so editing existing feeds creates a new feed."]
-    [:li "New feeds can be created by combining 2 or more existing feeds."]
-    [:li "Because all feeds are public and immutable there's no need to signup."]]
-  [:h2 [:a {:href "/gettingstarted"} "Watch our Getting Started Video"]]
-  [:span feed-count " feeds and counting"]
-  (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (link %)} (title %)) random-feeds))
-  [:a {:class "btn btn-primary" :href "/feeds/new"} "Create New Feed"]
-  "&nbsp;"
-  [:a {:class "btn btn-primary" :href "/feeds"} "List all feeds"]
-  "&nbsp;"
-  [:a {:class "btn btn-primary" :href "/feeds/random"} "Go to random feed"]
-  [:br])
+  {:head (list [:meta {:property "og:video" :content "//www.youtube.com/embed/kab9yAnHkwE"}])
+   :title "Prefab"
+   :content
+   (list [:h1 "Welcome to Prefab"]
+         [:p {:class "lead"} "Prefab is a new way of doing RSS feed aggregation. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
+         [:p "It's new because:"]
+         [:ul
+          [:li "All prefab feeds are public"]
+          [:li "All feeds are immutable, so editing existing feeds creates a new feed."]
+          [:li "New feeds can be created by combining 2 or more existing feeds."]
+          [:li "Because all feeds are public and immutable there's no need to signup."]]
+         [:h2 [:a {:href "/gettingstarted"} "Watch our Getting Started video"]]
+         [:span feed-count " feeds and counting"]
+         (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (link %)} (title %)) random-feeds))
+         [:a {:class "btn btn-primary" :href "/feeds/new"} "Create New Feed"]
+         "&nbsp;"
+         [:a {:class "btn btn-primary" :href "/feeds"} "List all feeds"]
+         "&nbsp;"
+         [:a {:class "btn btn-primary" :href "/feeds/random"} "Go to random feed"]
+         [:br]
+         )})
 
 (defpage getting-started
   []
   [:iframe {:width "960" :height "720" :src "//www.youtube.com/embed/sGV6Af0gGjo" :frameborder "0" :allowfullscreen "true"}])
-
 
 (defn entry
   "Renders a specific entry within a given feed"
@@ -129,16 +141,17 @@
 
 (defpage list-feeds
   [feeds prev-page next-page]
-  [:h1 "Feeds"]
-  (if (empty? feeds)
-    [:div "No feeds found! Be the first to " [:a {:href "/feeds/new"} "create one!"]]
-    [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href "/feeds/new"
-                                                       :title "Create feed"}]])
-  (ordered-list {} (map (fn [[id {:keys [name]}]]
-                          (link-to {} (feed-url id) (or name "(no name)")))
-                        feeds))
-  (when prev-page [:a {:href prev-page} "< Prev"])
-  (when next-page [:a {:href next-page} "Next >"]))
+  (list
+    [:h1 "Feeds"]
+    (if (empty? feeds)
+      [:div "No feeds found! Be the first to " [:a {:href "/feeds/new"} "create one!"]]
+      [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href "/feeds/new"
+                                                         :title "Create feed"}]])
+    [:ul.list-inline {} (map (fn [[id {:keys [name]}]]
+                               [:li.col-md-4.col-sm-6.col-xs-12 (link-to {} (feed-url id) (or name "(no name)"))])
+                             feeds)]
+    (when prev-page [:a {:href prev-page} "< Prev"])
+    (when next-page [:a {:href next-page} "Next >"])))
 
 (defpage reported-feeds
   [feeds]
