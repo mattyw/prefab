@@ -45,3 +45,15 @@ footer {
 .share-btn.facebook {
 	background: url(assets/facebook-share.png) center center no-repeat;
 }
+
+.btn-homepage {
+	display: block;
+	margin: 5px;
+}
+
+@media (min-width: 475px) {
+	.btn-homepage {
+		display: inline-block;
+		width: auto;
+	}
+}
