@@ -22,6 +22,9 @@
            "http://reddit.com/r/programming/.rss"]}
    {:name "ESPN News"
     :urls ["http://sports.espn.go.com/espn/rss/news"]}
+   {:name "XKCD + Dino"
+    :urls ["http://xkcd.com/rss.xml"
+           "http://www.rsspect.com/rss/qwantz.xml"]}
    {:name "XKCD"
     :urls ["http://xkcd.com/rss.xml"]}])
 
