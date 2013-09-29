@@ -57,3 +57,7 @@ footer {
 		width: auto;
 	}
 }
+
+.feed-entry .panel-body * {
+	max-width: 100%;
+}
