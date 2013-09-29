@@ -8,15 +8,16 @@
             [clj-rome.fetcher :refer (build-url-fetcher with-fetcher retrieve-feed)])
   (:import [java.io IOException]))
 
-(def qname "prefab:fetcher")
+(def qname "fetcher")
+(def hkey-urls (car/key "prefab" "url"))
 (def max-attempts 3)
 (def refresh-interval (min->ms 5))
 
-(defn url-key [url] (str "prefab:url:" url))
-
 (defn get-feed [redis url]
-  (wcar redis
-        (car/get (url-key url))))
+  (wcar redis (car/hget hkey-urls url)))
+
+(defn has-feed? [redis url]
+  (= 1 (wcar redis (car/hexists hkey-urls url))))
 
 (defn enqueue [url] (mq/enqueue qname url))
 
@@ -34,16 +35,18 @@
       (select-keys [:uri :title :author :authors :description :encoding])
       (assoc :entries (map extract-entry (:entries feed)))))
 
-(defn fetch [url]
-  (-> url build-feed extract-feed))
+(defn fetch
+  "Fetches a feed, caches it, then schedules it to be refreshed"
+  [redis url]
+  (infof "Fetching feed: %s" url)
+  (wcar redis
+        (car/hset hkey-urls url (-> url build-feed extract-feed))
+        (refresher/refresh-in refresh-interval url)))
 
 (defn fetcher-handler
   [redis {url :message attempts :attempts}]
   (try
-    (infof "Fetching feed: %s" url)
-    (wcar redis
-          (car/set (url-key url) (fetch url))
-          (refresher/refresh-in refresh-interval url))
+    (fetch redis url)
     {:status :success}
     (catch IOException e
       (if (< attempts max-attempts)

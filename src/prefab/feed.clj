@@ -73,11 +73,11 @@
                      (car/lua
                        "local current_id = redis.call('hget', _:hkey-names, _:name)
                        if current_id then
-                         if current_id == _:id then return 0
-                         else return 'invalid-name' end
+                       if current_id == _:id then return 0
+                       else return 'invalid-name' end
                        end
                        if redis.call('hsetnx', _:hkey-feeds, _:id, _:feed) == 0 then
-                         return 0
+                       return 0
                        end
                        redis.call('hset', _:hkey-names, _:name, _:id)
                        return 1"
@@ -87,6 +87,10 @@
                         :feed (car/freeze feed)
                         :name (name-key name)}))]
     (when (not= result "invalid-name")
-      (wcar redis (doseq [url urls]
-                    (fetcher/enqueue url)))
+      (doseq [url urls]
+        (try
+          (if-not (fetcher/has-feed? redis url)
+            (fetcher/fetch redis url))
+          (catch Exception e
+            (error e "Failed to pre-fetch URL:" url))))
       [id result])))
