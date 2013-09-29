@@ -48,6 +48,7 @@
                 :data-text "Prefab: A new way of doing RSS feed aggregation"
                 :data-hashtags"clojurecup"} "Tweet"]]
              ]])))))
+
 (defn wrap-render-flash
   "Middleware to render flash messages"
   [handler]
@@ -74,7 +75,7 @@
   "&nbsp;"
   [:a {:class "btn btn-primary" :href "/feeds"} "List all feeds"]
   "&nbsp;"
-  [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"]
+  [:a {:class "btn btn-primary" :href "/feeds/random"} "Go to random feed"]
   [:br]
   [:center [:h2 "Getting Started with Prefab"]
   [:iframe {:width "560" :height "315" :src "//www.youtube.com/embed/kab9yAnHkwE" :frameborder "0" :allowfullscreen "true"}]])

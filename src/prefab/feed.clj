@@ -23,9 +23,21 @@
       (str/lower-case)
       (car/key)))
 
-(defn all-feed-ids
-  ([redis] (wcar redis (all-feed-ids)))
-  ([] (car/hkeys hkey-feeds)))
+(defn rand-feed-id
+  "Returns random feed id, or nil when no feeds.
+  Implementation detail: chooses random id from random subset of ids"
+  [redis]
+  (wcar redis
+        (car/lua
+          "math.randomseed( _:seed )
+          local len = redis.call( 'llen', _:lkey-ids )
+          if len == 0 then return end
+          local size = math.min( 50, len )
+          local start = math.random( 0, len - size )
+          local ids = redis.call( 'lrange', _:lkey-ids, start, start + size )
+          return ids[ math.random( #ids ) ]"
+          {:lkey-ids lkey-ids}
+          {:seed (System/currentTimeMillis)})))
 
 (defn get-feeds
   "Returns map of feeds"

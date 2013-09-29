@@ -55,6 +55,11 @@
              (views/list-feeds feeds prev-page next-page)))
       (GET "/feeds/new" []
            (views/feed-edit nil))
+      (GET "/feeds/random" []
+           (if-let [id (feed/rand-feed-id redis)]
+             (resp/redirect (feed-url id))
+             (-> (resp/redirect "/")
+                 (assoc :flash "No feeds exist!"))))
       (GET "/feeds/:id/edit" [id]
            (if-let [feed (feed/get-feed redis id)]
              (views/feed-edit (:urls feed))))
@@ -71,12 +76,6 @@
               (create-feed redis headers name urls)))
       (GET "/feed-name-exists/:name" [name]
            (str (feed/valid-name? redis name)))
-      (GET "/random" []
-           (resp/redirect
-             (let [ids (feed/all-feed-ids redis)]
-               (if (> (count ids) 0)
-                 (feed-url (rand-nth ids))
-                 "/feeds/new"))))
       (GET "/" [] (views/index-page (feed/number-of-feeds redis) []))
       (route/resources "/")
       (route/not-found "Not found."))
