@@ -47,7 +47,7 @@
 
 (defn feed-exists?
   ([redis id] (wcar redis (feed-exists? id)))
-  ([id] (car/hexists hkey-feeds id)))
+  ([id] (= 1 (car/hexists hkey-feeds id))))
 
 (defn get-feed
   ([redis id] (wcar redis (get-feed id)))
