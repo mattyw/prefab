@@ -25,37 +25,45 @@
 
 (defrecord RSSFeedEntry [link title description published-date]
   IFeedData
-  (title          [this] (:title this))
-  (link           [this] (:link this))
+  (title          [this] title)
+  (link           [this] link)
 
   IFeedEntry
-  (content        [this] (get-in this [:description :value]))
-  (published-date [this] (:published-date this)))
+  (content        [this] description)
+  (published-date [this] published-date))
 
 (defrecord RSSFeed [uri link title author authors entries description published-date]
   IFeedData
-  (title       [this] (:title this))
-  (link        [this] (some this [:uri :link]))
+  (title       [this] title)
+  (link        [this] (or uri link))
 
   IFeedSource
-  (feedUrl     [this] (some this [:link :uri]))
-  (description [this] (get-in this [:description :value]))
-  (author      [this] (seq (some this [:author :authors])))
-  (entries     [this] (prn this)(map map->RSSFeedEntry (:entries this))))
+  (feedUrl     [this] (or link uri))
+  (description [this] description)
+  (author      [this] (seq (or author authors)))
+  (entries     [this] (map map->RSSFeedEntry entries)))
 
 (defrecord AtomFeedEntry [])
 (defrecord AtomFeed [])
-
-(extend-type nil
-  IFeedSource
-  (entries [this] (prn "what")))
 
 (defn parse-feed
   "Takes a raw hashmap of feed data and returns the correct
   adapter record, or `nil` for unknown types"
   [feed]
-  (prn feed)
   (condp #(contains? %2 %1) feed
-    :entries (map->RSSFeed feed)
+    :entries (merge (map->RSSFeed (select-keys feed [:uri :link :title :author :authors :published-date]))
+                    {:entries
+                     (map #(assoc
+                             (select-keys % [:uri :link :title])
+                             :description
+                             (get-in % [:description :value] (:description %)))
+                          (:entries feed))
+                     :description
+                     (get-in feed [:description :value] (:description feed))})
     :todo    (map->AtomFeed feed)
     nil))
+
+(defn feed?
+  "Determine if the given argument is a valid feed"
+  [feed]
+  (satisfies? IFeedSource feed))

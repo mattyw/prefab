@@ -3,7 +3,7 @@
             [hiccup.element :refer [unordered-list ordered-list link-to]]
             [hiccup.page :as page :refer [include-css include-js]]
             [hiccup.form :as form]
-            [prefab.feed-source :refer [title link content entries published-date]]
+            [prefab.feed-source :refer [title link content entries published-date feed?]]
             ))
 
 (defmacro defpage
@@ -54,7 +54,7 @@
 
 (defpage feed-view
   [id feeds]
-  (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) feeds)]
+  (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))]
     (list
       [:a {:href (str "/feed/edit/" id)} "(edit)"]
       (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries

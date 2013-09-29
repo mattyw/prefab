@@ -16,8 +16,8 @@
 (defn url-key [url] (str "prefab:url:" url))
 
 (defn get-feed [redis url]
-  (wcar redis
-        (car/get (url-key url))))
+  (feed/parse-feed (wcar redis
+                         (car/get (url-key url)))))
 
 (defn enqueue [url] (mq/enqueue qname url))
 
