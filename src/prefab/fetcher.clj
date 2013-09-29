@@ -1,5 +1,6 @@
 (ns prefab.fetcher
   (:require [prefab.util :refer (min->ms)]
+            [prefab.feed-source :as feed]
             [prefab.refresher :as refresher]
             [taoensso.carmine :as car :refer (wcar)]
             [taoensso.carmine.message-queue :as mq]
@@ -14,7 +15,7 @@
 (def refresh-interval (min->ms 5))
 
 (defn get-feed [redis url]
-  (wcar redis (car/hget hkey-urls url)))
+  (feed/parse-feed (wcar redis (car/hget hkey-urls url))))
 
 (defn has-feed? [redis url]
   (= 1 (wcar redis (car/hexists hkey-urls url))))
@@ -23,24 +24,12 @@
 
 (defn clear-queue [redis] (mq/clear-queues redis qname))
 
-(defn- extract-entry [entry]
-  (-> entry
-      (select-keys [:link :contributors :author :authors :title :uri
-                    :published-date :categories :links])
-      (assoc :content (get-in entry [:description :value]))
-      (assoc :title-ex (get-in entry [:title-ex :value]))))
-
-(defn- extract-feed [feed]
-  (-> feed
-      (select-keys [:uri :title :author :authors :description :encoding])
-      (assoc :entries (map extract-entry (:entries feed)))))
-
 (defn fetch
   "Fetches a feed, caches it, then schedules it to be refreshed"
   [redis url]
   (infof "Fetching feed: %s" url)
   (wcar redis
-        (car/hset hkey-urls url (-> url build-feed extract-feed))
+        (car/hset hkey-urls url (-> url build-feed feed/parse-feed))
         (refresher/refresh-in refresh-interval url)))
 
 (defn fetcher-handler
@@ -51,7 +40,7 @@
     (catch IOException e
       (if (< attempts max-attempts)
         (do
-          (warn "Failed to fetch feed (atttempt %d of %d)" attempts max-attempts)
+          (warn "Failed to fetch feed (attempt %d of %d)" attempts max-attempts)
           {:status :retry})
         (do
           (error "Failed to fetch feed after %d attempts" max-attempts)

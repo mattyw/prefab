@@ -4,6 +4,7 @@
             [hiccup.page :as page :refer [include-css include-js]]
             [hiccup.form :as form]
             [clojure.string :as str]
+            [prefab.feed-source :refer [title link content entries published-date feed?]]
             ))
 (defn feed-url [id] (str "/feeds/" id))
 (defn feed-edit-url [id] (str "/feeds/" id "/edit"))
@@ -37,7 +38,7 @@
     [:li "New feeds can be created by combining 2 or more existing feeds."]
     [:li "Because all feeds are public and immutable there's no need to signup."]]
   [:span feed-count " feeds and counting"]
-  (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (:link %)} (:title %)) random-feeds))
+  (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (link %)} (title %)) random-feeds))
   [:a {:class "btn btn-primary" :href "/feeds/new"} "Create New Feed"]
   "&nbsp;"
   [:a {:class "btn btn-primary" :href "/feeds"} "List all feeds"]
@@ -50,18 +51,17 @@
   [:article.feed-entry.panel.panel-default
    [:div.panel-heading
     [:h2.panel-title
-     [:small.pull-right (:title source) " at " (:published-date entry)]
-     (:title entry)]]
-   [:div.panel-body (:content entry)]])
+     [:small.pull-right (title source) " at " (:published-date entry)]
+     (title entry)]]
+   [:div.panel-body (content entry)]])
 
 (defpage feed-view
   [id {:keys [urls name] :as feed} feeds]
-  (let [entries (mapcat #(map vector (:entries %) (repeat %)) feeds)]
+  (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))]
     (list
-      (when name [:h1 name])
       [:a {:href (feed-edit-url id)} "(edit)"]
-      (ordered-list {:class "list-unstyled"} (map entry (->> entries
-                                                             (sort-by #(:published-date (first %)))
+      (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
+                                                             (sort-by #(published-date (first %)))
                                                              reverse))))))
 
 (defpage list-feeds
