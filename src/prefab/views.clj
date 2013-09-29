@@ -3,6 +3,7 @@
             [hiccup.element :refer [unordered-list ordered-list link-to]]
             [hiccup.page :as page :refer [include-css include-js]]
             [hiccup.form :as form]
+            [ring.util.response :refer (response)]
             [clojure.string :as str]
             [prefab.feed-source :refer [title link content entries published-date feed?]]
             ))
@@ -13,20 +14,33 @@
   [page-name page-vars & content]
   "Creates a page with a common shell around it"
   `(defn ~page-name ~page-vars
-     (page/html5
-       [:head
-        [:meta {:charset "utf-8"}]
-        [:title "Prefab"]
-        [:meta {:name "description" :content "RSS Feed aggregation service"}]
-        [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-        (include-css "/lib/bootstrap.min.css")
-        (include-css "/css/prefab.css")
-        (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
-        [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
-       [:body
-        [:header {:class "navbar navbar-default" :role "banner"}
-         [:a {:href "/" :class "navbar-brand"} "Prefab"]]
-        [:div {:role "main" :class "container"} ~@content]])))
+     (response
+       (fn [{flash# :flash}]
+         (page/html5
+           [:head
+            [:meta {:charset "utf-8"}]
+            [:title "Prefab"]
+            [:meta {:name "description" :content "RSS Feed aggregation service"}]
+            [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+            (include-css "/lib/bootstrap.min.css")
+            (include-css "/css/prefab.css")
+            (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
+            [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
+           [:body
+            [:header {:class "navbar navbar-default" :role "banner"}
+             [:a {:href "/" :class "navbar-brand"} "Prefab"]]
+            (when flash# [:div {:role "flash" :class "message"} flash#])
+            [:div {:role "main" :class "container"} ~@content]])))))
+
+(defn wrap-render-flash
+  "Middleware to render flash messages"
+  [handler]
+  (fn [request]
+    ;(debug request)
+    (let [{:keys [body] :as response} (handler request)]
+      (if (fn? body)
+        (assoc response :body (body {:flash (get-in request [:flash])}))
+        response))))
 
 (defpage index-page
   [feed-count random-feeds]

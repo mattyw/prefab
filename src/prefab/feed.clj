@@ -55,7 +55,7 @@
 
 (defn feed-exists?
   ([redis id] (wcar redis (feed-exists? id)))
-  ([id] (= 1 (car/hexists hkey-feeds id))))
+  ([id] (not (zero? (car/hexists hkey-feeds id)))))
 
 (defn get-feed
   ([redis id] (wcar redis (get-feed id)))
@@ -105,4 +105,4 @@
             (fetcher/fetch redis url))
           (catch Exception e
             (error e "Failed to pre-fetch URL:" url))))
-      [id result])))
+      [id (not (zero? result))])))
