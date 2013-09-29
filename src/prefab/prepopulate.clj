@@ -10,7 +10,7 @@
    {:name "Reddit Frontpage"
     :urls ["http://www.reddit.com/r/all.rss"]}
    {:name "Slashdot"
-    :urls ["http://prefab.clojurecup.com/feeds/427546384"]}
+    :urls ["http://rss.slashdot.org/Slashdot/slashdot"]}
    {:name "NPR News"
     :urls ["http://www.npr.org/rss/rss.php?id=1001"]}
    {:name "Tech News"
