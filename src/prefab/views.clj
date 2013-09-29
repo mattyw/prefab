@@ -1,12 +1,13 @@
 (ns prefab.views
   (:require [hiccup.core :refer :all]
-            [hiccup.element :refer [unordered-list ordered-list link-to]]
-            [hiccup.page :as page :refer [include-css include-js]]
+            [hiccup.element :refer (unordered-list ordered-list link-to)]
+            [hiccup.page :as page :refer (include-css include-js)]
             [hiccup.form :as form]
             [ring.util.response :refer (response)]
             [clojure.string :as str]
-            [prefab.feed-source :refer [title link content entries published-date feed?]]
-            ))
+            [prefab.feed-source :refer (title link content entries published-date feed?)]
+            [prefab.feed :as feed]))
+
 (defn feed-url [id] (str "/feeds/" id))
 (defn feed-edit-url [id] (str "/feeds/" id "/edit"))
 
@@ -120,7 +121,11 @@
   (form/form-to {:id "feed-create"} [:post "/feeds"]
                 [:div {:class "form-group"}
                  [:label {:for "feed-name"} "Feed Name"]
-                 (form/text-field {:class "form-control" :id "feed-name" :placeholder "(optional)"} "Feed[name]")]
+                 (form/text-field {:id "feed-name"
+                                   :class "form-control"
+                                   :placeholder "(optional)"
+                                   :maxlength feed/max-len-feed-name}
+                                  "Feed[name]")]
                 [:div.form-group
                  [:label {:for "feed-urls"} "RSS Feeds"]
                  (form/text-area {:class "form-control" :id "feed-urls" :rows 8} "Feed[urls]"
