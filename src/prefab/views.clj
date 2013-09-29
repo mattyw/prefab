@@ -5,6 +5,7 @@
             [hiccup.form :as form]
             [ring.util.response :refer (response)]
             [clojure.string :as str]
+            [prefab.views.helpers :as helper]
             [prefab.feed-source :refer (title link content entries published-date feed?)]
             [prefab.feed :as feed]))
 
@@ -98,6 +99,15 @@
   (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))
         feed-name (if (empty? name) "(No name)" name)]
     (list
+      [:div.social-sharing.pull-right.h1
+       (helper/share-twitter (feed-url id)
+                             (if (empty? name)
+                               "Check out this RSS feed! #prefab #clojurecup"
+                               (format "Check out this RSS feed, %s! #prefab #clojurecup" feed-name)))
+       (helper/share-facebook (feed-url id)
+                              (if (empty? name)
+                                (str "Check out this RSS feed on Prefab! " (helper/full-url (feed-url id)))
+                                (format "Check out this RSS feed, %s! %s" feed-name (feed-url id))))]
       [:h1 feed-name " "
        [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href (feed-edit-url id)
                                                           :title (str "Create a new feed based on " feed-name)}]]

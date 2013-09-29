@@ -1,3 +1,23 @@
 .text-vmiddle {
 	vertical-align: middle;
 }
+
+.social-sharing.h1 {
+	margin-top: 20px;
+}
+
+.share-btn {
+	display: inline-block;
+	height: 32px;
+	width: 32px;
+	margin: 0 2px;
+	border-radius: 3px;
+}
+
+.share-btn.twitter {
+	background: url(assets/twitter-share.png) center center no-repeat;
+}
+
+.share-btn.facebook {
+	background: url(assets/facebook-share.png) center center no-repeat;
+}
