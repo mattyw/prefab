@@ -38,11 +38,12 @@
               [:li [:a {:href "/feeds/random"} "Random Feed"]]]
              [:div {:class "navbar navbar-nav navbar-right"}
               [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]]
-            (when flash# [:div {:role "flash" :class "message"} flash#])
-            [:div {:role "main" :class "container"} ~@content]
+            [:div {:role "main" :class "container"}
+             (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
+             ~@content]
             [:footer {:class "navbar navbar-fixed-bottom"}
              [:div {:class "panel-body"}
-              [:a 
+              [:a
                {:href "https://twitter.com/share"
                 :class "twitter-share-button"
                 :data-url "http://prefab.clojurecup.com"

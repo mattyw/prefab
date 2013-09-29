@@ -38,8 +38,8 @@
     (if-let [[feed-id created?] (feed/create-feed redis name urls)]
       (-> (ajax/redirect (feed-url feed-id))
           (assoc :flash (if created?
-                          "Feed created!"
-                          "A feed with those URLs already exists!")))
+                          {:type :success :message "Feed created!"}
+                          {:type :error :message "A feed with those URLs already exists!"})))
       (ajax/error "Failed to create feed"))))
 
 (defn app [{:keys [redis] :as system}]
