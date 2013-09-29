@@ -81,7 +81,11 @@
                 (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
                 ~(:content blocks)]]
               [:footer.navbar.text-center
-               [:small.text-muted.authors "Created for ClojureCup by Matty Williams, Sam Carter, Logan Linn, and Scott Rabin"]
+               [:small.text-muted.authors "Created for ClojureCup by "
+                [:a {:href "https://twitter.com/matty_jwilliams"} "Matty Williams"] ", "
+                [:a {:href "https://twitter.com/cheesysam"} "Sam Carter"] ", "
+                [:a {:href "https://twitter.com/loganlinn"} "Logan Linn"] ", and "
+                [:a {:href "https://github.com/scottrabin"} "Scott Rabin"]]
                [:div {:class "panel-body"}
                 [:a
                  {:href "https://twitter.com/share"
