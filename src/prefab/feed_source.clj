@@ -23,7 +23,7 @@
   (published-date [this] "The publication date of the entry"))
   ; categories
 
-(defrecord RSSFeedEntry [link title description published-date]
+(defrecord FeedEntry [link title description published-date]
   IFeedData
   (title          [this] title)
   (link           [this] link)
@@ -32,7 +32,7 @@
   (content        [this] description)
   (published-date [this] published-date))
 
-(defrecord RSSFeed [uri link title author authors entries description published-date]
+(defrecord Feed [uri link title author authors entries description published-date]
   IFeedData
   (title       [this] title)
   (link        [this] (or uri link))
@@ -41,27 +41,32 @@
   (feedUrl     [this] (or link uri))
   (description [this] description)
   (author      [this] (seq (or author authors)))
-  (entries     [this] (map map->RSSFeedEntry entries)))
+  (entries     [this] (map map->FeedEntry entries)))
 
-(defrecord AtomFeedEntry [])
-(defrecord AtomFeed [])
+(defn- item-desc
+  "Get the description of a given feed or entry"
+  [item]
+  (let [desc (:description item)]
+    (cond
+      (map? desc) (:value desc)
+      (seq? (:contents item)) (-> item :contents first :value)
+      :else desc)))
+
+(defn- timestamp
+  "Get the publication or updated-on date for an item"
+  [item]
+  (some #(% item) [:published-date :updated-date]))
 
 (defn parse-feed
   "Takes a raw hashmap of feed data and returns the correct
   adapter record, or `nil` for unknown types"
   [feed]
-  (condp #(contains? %2 %1) feed
-    :entries (merge (map->RSSFeed (select-keys feed [:uri :link :title :author :authors :published-date]))
-                    {:entries
-                     (map #(assoc
-                             (select-keys % [:uri :link :title])
-                             :description
-                             (get-in % [:description :value] (:description %)))
-                          (:entries feed))
-                     :description
-                     (get-in feed [:description :value] (:description feed))})
-    :todo    (map->AtomFeed feed)
-    nil))
+  (merge (map->Feed (select-keys feed [:uri :link :title :author :authors :published-date]))
+         {:description (item-desc feed)
+          :entries (map #(merge (select-keys % [:uri :link :title])
+                                {:description (item-desc %)
+                                 :published-date (timestamp %)})
+                        (:entries feed))}))
 
 (defn feed?
   "Determine if the given argument is a valid feed"
