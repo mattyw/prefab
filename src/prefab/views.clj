@@ -70,7 +70,8 @@
                  [:button.navbar-toggle {:type "button" :data-toggle "collapse" :data-target ".prefab-navbar-collapse"}
                   [:span.sr-only "Toggle navigation"]
                   (repeat 3 [:span.icon-bar])]
-                 [:a.navbar-brand {:href "/"} "Prefab"]]
+                 [:a.navbar-brand {:href "/"} "Prefab"]
+                 [:a.btn.btn-success.navbar-btn.pull-left {:href "http://clojurecup.com/app.html?app=prefab"} "Vote for us!"]]
                 [:nav.collapse.navbar-collapse.prefab-navbar-collapse {:role "navigation"}
                  [:ul.nav.navbar-nav
                   [:li [:a {:href "/feeds/new"} "New Feed"]]
@@ -87,8 +88,7 @@
                   :class "twitter-share-button"
                   :data-url "http://prefab.clojurecup.com"
                   :data-text "Prefab: A new way of doing RSS feed aggregation"
-                  :data-hashtags "clojurecup"} "Tweet"]
-                [:a.btn.btn-success {:href "http://clojurecup.com/app.html?app=prefab"} "Vote for us!"]]
+                  :data-hashtags "clojurecup"} "Tweet"]]
                ]]))))))
 
 (defpage index-page
