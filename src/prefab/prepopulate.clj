@@ -1,3 +1,4 @@
+; lein run -m prefab.prepopulate
 (ns prefab.prepopulate
   (:require [org.httpkit.client :as http]
             [environ.core :refer (env)]
@@ -12,6 +13,13 @@
     :urls ["http://prefab.clojurecup.com/feeds/427546384"]}
    {:name "NPR News"
     :urls ["http://www.npr.org/rss/rss.php?id=1001"]}
+   {:name "Tech News"
+    :urls ["http://feeds.bbci.co.uk/news/technology/rss.xml"
+           "http://www.theregister.co.uk/headlines.atom"]}
+   {:name "Matts Reddit Favourites"
+    :urls ["http://reddit.com/r/vim/.rss"
+           "http://reddit.com/r/clojure/.rss"
+           "http://reddit.com/r/programming/.rss"]}
    {:name "ESPN News"
     :urls ["http://sports.espn.go.com/espn/rss/news"]}])
 
