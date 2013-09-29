@@ -3,6 +3,7 @@
             [hiccup.element :refer [unordered-list ordered-list link-to]]
             [hiccup.page :as page :refer [include-css include-js]]
             [hiccup.form :as form]
+            [prefab.feed-source :refer [title link content entries published-date]]
             ))
 
 (defmacro defpage
@@ -34,7 +35,7 @@
     [:li "New feeds can be created by combining 2 or more existing feeds."]
     [:li "Because all feeds are public and immutable there's no need to signup."]]
   [:span feed-count " feeds and counting"]
-  (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (:link %)} (:title %)) random-feeds))
+  (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (link %)} (title %)) random-feeds))
   [:a {:class "btn btn-primary" :href "/feed"} "Create New Feed"]
   "&nbsp;"
   [:a {:class "btn btn-primary" :href "/list"} "List all feeds"]
@@ -47,17 +48,17 @@
   [:article.feed-entry.panel.panel-default
    [:div.panel-heading
     [:h2.panel-title
-     [:small.pull-right (:title source) " at " (:published-date entry)]
-     (:title entry)]]
-   [:div.panel-body (:content entry)]])
+     [:small.pull-right (title source) " at " (:published-date entry)]
+     (title entry)]]
+   [:div.panel-body (content entry)]])
 
 (defpage feed-view
   [id feeds]
-  (let [entries (mapcat #(map vector (:entries %) (repeat %)) feeds)]
+  (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) feeds)]
     (list
       [:a {:href (str "/feed/edit/" id)} "(edit)"]
-      (ordered-list {:class "list-unstyled"} (map entry (->> entries
-                                                             (sort-by #(:published-date (first %)))
+      (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
+                                                             (sort-by #(published-date (first %)))
                                                              reverse))))))
 
 (defpage list-feeds
