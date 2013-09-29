@@ -53,18 +53,22 @@
               (include-css "/css/prefab.css")
               (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
               (include-js "/js/twitter.js")
+              (include-js "/lib/bootstrap.min.js")
               [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]
               ~(:head blocks)]
              [:body
-              [:nav {:class "navbar navbar-default" :role "navigation"}
-               [:div {:class "navbar-header"}
-                [:a {:href "/" :class "navbar-brand"} "Prefab"]]
-               [:ul {:class "nav navbar-nav"}
-                [:li [:a {:href "/feeds/new"} "New Feed"]]
-                [:li [:a {:href "/feeds"} "Browse Feeds"]]
-                [:li [:a {:href "/feeds/random"} "Random Feed"]]]
-               [:div {:class "navbar navbar-nav navbar-right"}
-                [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]]
+              [:header.navbar.navbar-default {:role "banner"}
+               [:div.navbar-header
+                [:button.navbar-toggle {:type "button" :data-toggle "collapse" :data-target ".prefab-navbar-collapse"}
+                 [:span.sr-only "Toggle navigation"]
+                 (repeat 3 [:span.icon-bar])]
+                [:a.navbar-brand {:href "/"} "Prefab"]]
+               [:nav.collapse.navbar-collapse.prefab-navbar-collapse {:role "navigation"}
+                [:ul.nav.navbar-nav
+                 [:li [:a {:href "/feeds/new"} "New Feed"]]
+                 [:li [:a {:href "/feeds"} "Browse Feeds"]]
+                 [:li [:a {:href "/feeds/random"} "Random Feed"]]
+                 [:li [:a {:href "http://clojurecup.com/app.html?app=prefab"} "Vote for us!"]]]]]
               [:div {:role "main" :class "container"}
                (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
                ~(:content blocks)]
