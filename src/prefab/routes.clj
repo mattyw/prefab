@@ -43,7 +43,7 @@
   (->
     (routes
       (GET "/feeds" []
-           (views/list-feeds (feed/all-feed-ids redis)))
+           (views/list-feeds (feed/all-feed-ids redis))) ; TODO get the names of these feeds
       (GET "/feeds/new" []
            (views/feed-edit nil))
       (GET "/feeds/:id/edit" [id]
@@ -62,7 +62,11 @@
               (create-feed redis headers name urls)))
 
       (GET "/random" []
-           (resp/redirect "/")) ; TODO grab a random Fab url
+           (resp/redirect
+             (let [ids (feed/all-feed-ids redis)]
+               (if (> (count ids) 0)
+                 (feed-url (rand-nth ids))
+                 "/feeds/new"))))
       (GET "/" [] (views/index-page (feed/number-of-feeds redis) []))
       (route/resources "/")
       (route/not-found "Not found."))
