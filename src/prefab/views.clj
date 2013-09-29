@@ -27,8 +27,10 @@
             (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
             [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
            [:body
-            [:header {:class "navbar navbar-default" :role "banner"}
-             [:a {:href "/" :class "navbar-brand"} "Prefab"]]
+             [:nav {:class "navbar navbar-default" :role "navigation"}
+               [:ul {:class "nav navbar-nav"}
+                 [:li [:a {:href "/" :class "navbar-brand"} "Prefab"]]]
+                 [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]
             (when flash# [:div {:role "flash" :class "message"} flash#])
             [:div {:role "main" :class "container"} ~@content]])))))
 
