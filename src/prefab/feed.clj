@@ -72,15 +72,15 @@
         result (wcar redis
                      (car/lua
                        "local current_id = redis.call('hget', _:hkey-names, _:name)
-                       if current_id then
-                       if current_id == _:id then return 0
-                       else return 'invalid-name' end
-                       end
-                       if redis.call('hsetnx', _:hkey-feeds, _:id, _:feed) == 0 then
-                       return 0
-                       end
-                       redis.call('hset', _:hkey-names, _:name, _:id)
-                       return 1"
+                        if current_id then
+                          if current_id == _:id then return 0
+                          else return 'invalid-name' end
+                        end
+                        if redis.call('hsetnx', _:hkey-feeds, _:id, _:feed) == 0 then
+                          return 0
+                        end
+                        redis.call('hset', _:hkey-names, _:name, _:id)
+                        return 1"
                        {:hkey-names hkey-names
                         :hkey-feeds hkey-feeds}
                        {:id id
