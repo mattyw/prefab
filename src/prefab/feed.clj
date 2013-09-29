@@ -101,8 +101,8 @@
 (defn create-feed
   [redis name urls]
   (let [id (feed-id urls)
-        name (->> name (str-take max-len-feed-name) (normalize-name))
-        feed {:name name :urls urls}
+        name (str-take max-len-feed-name name)
+        feed {:name (normalize-name name) :urls urls}
         result (wcar redis
                      (car/lua
                        "local current_id = redis.call('hget', _:hkey-names, _:name)
