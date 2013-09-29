@@ -20,6 +20,7 @@
         [:meta {:name "description" :content "RSS Feed aggregation service"}]
         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
         (include-css "/lib/bootstrap.min.css")
+        (include-css "/css/prefab.css")
         (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
         [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]]
        [:body
@@ -57,12 +58,13 @@
 
 (defpage feed-view
   [id {:keys [urls name] :as feed} feeds]
+  [:h1 name " "
+   [:small.text-vmiddle [:a.glyphicon.glyphicon-plus {:href (feed-edit-url id)
+                                                      :title (str "Create a new feed based on " name)}]]]
   (let [feed-entries (mapcat #(map vector (entries %) (repeat %)) (filter feed? feeds))]
-    (list
-      [:a {:href (feed-edit-url id)} "(edit)"]
-      (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
-                                                             (sort-by #(published-date (first %)))
-                                                             reverse))))))
+    (ordered-list {:class "list-unstyled"} (map entry (->> feed-entries
+                                                           (sort-by #(published-date (first %)))
+                                                           reverse)))))
 
 (defpage list-feeds
   [ids]
