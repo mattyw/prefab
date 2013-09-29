@@ -32,48 +32,56 @@
   [page-name page-vars blocks]
   "Creates a function to render page with a common shell around it
   The function first argument is request"
-  (let [blocks (if (map? blocks) blocks `{:content ~blocks})]
-   `(defn ~page-name ~page-vars
-      (let [flash# (get *request* :flash)]
-        (response
-          (page/html5
-            [:head
-             [:meta {:charset "utf-8"}]
-             [:title "Prefab"]
-             [:meta {:name "description" :content "RSS Feed aggregation service"}]
-             [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-             (include-css "/lib/bootstrap.min.css")
-             (include-css "/css/prefab.css")
-             (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
-             (include-js "/js/twitter.js")
-             [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]
-             ~(:head blocks)]
-            [:body
-             [:nav {:class "navbar navbar-default" :role "navigation"}
-              [:div {:class "navbar-header"}
-               [:a {:href "/" :class "navbar-brand"} "Prefab"]]
-              [:ul {:class "nav navbar-nav"}
-               [:li [:a {:href "/feeds/new"} "New Feed"]]
-               [:li [:a {:href "/feeds"} "Browse Feeds"]]
-               [:li [:a {:href "/feeds/random"} "Random Feed"]]]
-              [:div {:class "navbar navbar-nav navbar-right"}
-               [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]]
-             [:div {:role "main" :class "container"}
-              (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
-              ~(:content blocks)]
-             [:footer {:class "navbar navbar-fixed-bottom"}
-              [:div {:class "panel-body"}
-               [:a
-                {:href "https://twitter.com/share"
-                 :class "twitter-share-button"
-                 :data-url "http://prefab.clojurecup.com"
-                 :data-text "Prefab: A new way of doing RSS feed aggregation"
-                 :data-hashtags"clojurecup"} "Tweet"]]
-              ]]))))))
+  (let [blocks (if (map? blocks) blocks `{:content ~blocks})
+        title (:title blocks "Prefab")]
+    `(defn ~page-name ~page-vars
+       (let [flash# (get *request* :flash)
+             url# (get *request* :uri)]
+         (response
+           (page/html5
+             [:head
+              [:meta {:charset "utf-8"}]
+              [:title ~title]
+              [:meta {:name "description" :content "RSS Feed aggregation service"}]
+              [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+              (when *request*
+                (list [:meta {:property "og:url" :content (get *request* :uri)}]
+                      [:meta {:property "og:type" :content "website"}]
+                      [:meta {:property "og:title" :content ~title}]
+                      [:meta {:property "og:image" :content ""}]))
+              (include-css "/lib/bootstrap.min.css")
+              (include-css "/css/prefab.css")
+              (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js")
+              (include-js "/js/twitter.js")
+              [:script {:type "text/javascript" :src "/lib/require.js" :data-main "/js/main"}]
+              ~(:head blocks)]
+             [:body
+              [:nav {:class "navbar navbar-default" :role "navigation"}
+               [:div {:class "navbar-header"}
+                [:a {:href "/" :class "navbar-brand"} "Prefab"]]
+               [:ul {:class "nav navbar-nav"}
+                [:li [:a {:href "/feeds/new"} "New Feed"]]
+                [:li [:a {:href "/feeds"} "Browse Feeds"]]
+                [:li [:a {:href "/feeds/random"} "Random Feed"]]]
+               [:div {:class "navbar navbar-nav navbar-right"}
+                [:a {:href "http://clojurecup.com/app.html?app=prefab" :class "btn btn-success navbar-btn"} "Vote for us!"]]]
+              [:div {:role "main" :class "container"}
+               (when flash# [:div {:role "flash" :class (str "alert alert-" ({:success "success" :error "danger"} (:type flash#)))} (:message flash#)])
+               ~(:content blocks)]
+              [:footer {:class "navbar navbar-fixed-bottom"}
+               [:div {:class "panel-body"}
+                [:a
+                 {:href "https://twitter.com/share"
+                  :class "twitter-share-button"
+                  :data-url "http://prefab.clojurecup.com"
+                  :data-text "Prefab: A new way of doing RSS feed aggregation"
+                  :data-hashtags"clojurecup"} "Tweet"]]
+               ]]))))))
 
 (defpage index-page
   [feed-count random-feeds]
   {:head (list [:meta {:property "og:video" :content "//www.youtube.com/embed/kab9yAnHkwE"}])
+   :title "Prefab"
    :content
    (list [:h1 "Welcome to Prefab"]
          [:p {:class "lead"} "Prefab is a new way of doing RSS feed aggregation. Create a feed with your list of RSS URLs to get a chronologically ordered list."]
