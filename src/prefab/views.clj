@@ -112,7 +112,7 @@
          [:span feed-count " feeds and counting"]
          (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (link %)} (title %)) random-feeds))
          [:a {:class "btn btn-primary btn-homepage" :href "/feeds/new"} "Create New Feed"]
-         [:a {:class "btn btn-primary btn-homepage" :href "/feeds"} "List all feeds"]
+         [:a {:class "btn btn-primary btn-homepage" :href "/feeds"} "Browse feeds"]
          [:a {:class "btn btn-primary btn-homepage" :href "/feeds/random"} "Go to random feed"]
          [:br]
          )})
