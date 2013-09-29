@@ -5,6 +5,8 @@
             [hiccup.form :as form]
             [clojure.string :as str]
             ))
+(defn feed-url [id] (str "/feeds/" id))
+(defn feed-edit-url [id] (str "/feeds/" id "/edit"))
 
 (defmacro defpage
   [page-name page-vars & content]
@@ -36,9 +38,9 @@
     [:li "Because all feeds are public and immutable there's no need to signup."]]
   [:span feed-count " feeds and counting"]
   (unordered-list {:class "list-unstyled"} (map #(vector :a {:href (:link %)} (:title %)) random-feeds))
-  [:a {:class "btn btn-primary" :href "/feed"} "Create New Feed"]
+  [:a {:class "btn btn-primary" :href "/feeds/new"} "Create New Feed"]
   "&nbsp;"
-  [:a {:class "btn btn-primary" :href "/list"} "List all feeds"]
+  [:a {:class "btn btn-primary" :href "/feeds"} "List all feeds"]
   "&nbsp;"
   [:a {:class "btn btn-primary" :href "/random"} "Go to random feed"])
 
@@ -57,7 +59,7 @@
   (let [entries (mapcat #(map vector (:entries %) (repeat %)) feeds)]
     (list
       (when name [:h1 name])
-      [:a {:href (str "/feed/edit/" id)} "(edit)"]
+      [:a {:href (feed-edit-url id)} "(edit)"]
       (ordered-list {:class "list-unstyled"} (map entry (->> entries
                                                              (sort-by #(:published-date (first %)))
                                                              reverse))))))
@@ -65,11 +67,11 @@
 (defpage list-feeds
   [ids]
   [:h1 "All feeds"]
-  (ordered-list {} (map #(link-to {} (str "/feed/" %1) %1) ids)))
+  (ordered-list {} (map #(link-to {} (feed-url %) %) ids)))
 
 (defpage feed-edit
   [feed-urls]
-  (form/form-to {:id "feed-create"} [:post "/feed"]
+  (form/form-to {:id "feed-create"} [:post "/feeds"]
                 [:div {:class "form-group"}
                  [:label {:for "feed-name"} "Feed Name"]
                  (form/text-field {:class "form-control" :id "feed-name" :placeholder "(optional)"} "Feed[name]")]
