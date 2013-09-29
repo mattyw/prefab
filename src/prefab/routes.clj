@@ -4,6 +4,7 @@
             [compojure.route :as route]
             [ring.util.response :as resp :refer (response redirect-after-post)]
             [taoensso.carmine :as car :refer (wcar)]
+            [taoensso.timbre :refer (debugf)]
             [prefab.views :as views]
             [prefab.feed :as feed]
             [prefab.ajax]
@@ -12,6 +13,32 @@
             ))
 
 (defn feed-url [id] (str "/feeds/" id))
+
+(defn parse-feed-id
+  "If url is a Prefab feed, returns the id, otherwise nil"
+  [host url]
+  (-> (re-pattern (str "(?:" host "/feeds/(-?\\d+))$|^(-?\\d+)$"))
+      (re-find url)
+      (second)))
+
+(defn expand-url
+  "Returns a seq of URLs. Expands URL or id of a Prefab feed to a seq of that
+  feed's URLs. If URL is not for a Prefab feed, returns the URL in a seq"
+  [redis host url]
+  (if-let [feed (some->> (parse-feed-id host url) (feed/get-feed redis))]
+    (seq (:urls feed))
+    (list url)))
+
+(defn create-feed [redis headers name urls]
+  (let [host (get headers "host")
+        urls (set (mapcat (partial expand-url redis host) urls))]
+    (debugf "name=%s URLS: %s" name urls)
+    (if-let [[feed-id created?] (feed/create-feed redis name urls)]
+      (-> (prefab.ajax/redirect (feed-url feed-id))
+          (assoc :flash (if created?
+                          "Feed created!"
+                          "A feed with those URLs already exists!")))
+      (response "Failed to create feed"))))
 
 (defn app [{:keys [redis] :as system}]
   (->
@@ -30,13 +57,10 @@
             (if (feed/feed-exists? redis id)
               (response "")
               (resp/not-found "")))
-      (POST "/feeds" {{:keys [urls name]} :params}
-            (when-let [urls (if (feed/valid-urls? (seq urls)) (set urls))]
-              (when-let [[feed-id created?] (feed/create-feed redis name urls)]
-                (-> (prefab.ajax/redirect (feed-url feed-id))
-                    (assoc :flash (if created?
-                                    "Feed created!"
-                                    "A feed with those URLs already exists!"))))))
+      (POST "/feeds" {{:keys [urls name]} :params headers :headers}
+            (debugf "Creating feed from URLs: %s" urls)
+            (when (coll? urls)
+              (create-feed redis headers name urls)))
 
       (GET "/random" []
            (resp/redirect "/")) ; TODO grab a random Fab url
